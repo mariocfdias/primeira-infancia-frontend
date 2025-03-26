@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="Dashboard dos Municípios do Pacto Cearense da Primeira Infância">
+    <title>Dashboard Municípios</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+          crossorigin=""/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+            crossorigin=""></script>
+    <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <main class="container" role="main">
+        <!-- Left Panel -->
+        <aside class="left-panel" role="complementary" aria-label="Navegação do mapa">
+            <h1>Navegue pelos municípios</h1>
+            <div class="select-wrapper">
+                <label for="municipios" class="visually-hidden">Selecione um município</label>
+                <select id="municipios" aria-label="Lista de municípios">
+                    <option value="">Selecione um município</option>
+                </select>
+            </div>
+            <p class="helper-text" role="note">
+                Escolha um município no menu acima ou selecione diretamente no mapa para acessar o perfil do Pacto Cearense da Primeira Infância.
+            </p>
+            <div class="map-container" role="region" aria-label="Mapa do Ceará">
+                <div id="map" aria-label="Mapa interativo dos municípios"></div>
+            </div>
+            <div class="legenda" role="contentinfo">
+                <h2>Legenda</h2>
+                <p>
+                    <span class="blue-square" role="img" aria-label="Indicador azul"></span>
+                    Os campos destacados em azul representam os <b>municípios que participam do programa</b> Pacto Cearense da Primeira Infância.
+                </p>
+            </div>
+        </aside>
+
+        <!-- Right Panel -->
+        <section class="right-panel" role="region" aria-label="Informações do município">
+            <!-- Section 1: Município Header -->
+            <div class="nao-participante">
+                <i class="fas fa-info-circle"></i>
+                <p>Os resultados do município serão exibidos abaixo após a seleção.</p>
+            </div>
+            <article class="municipality-section skeleton-loading">
+                <div class="municipality-header">
+                    <div class="municipality-image skeleton"></div>
+                    <div class="municipality-info">
+                        <div class="skeleton skeleton-text" style="width: 60%; height: 40px;"></div>
+                        <div class="skeleton skeleton-text" style="width: 40%; height: 24px;"></div>
+                        <div class="level-header">
+                            <div class="skeleton skeleton-text" style="width: 30%; height: 24px;"></div>
+                            <div class="skeleton skeleton-text" style="width: 20%; height: 24px;"></div>
+                        </div>
+                        <div class="progress-bar skeleton"></div>
+                        <div class="skeleton skeleton-text" style="width: 50%; height: 16px;"></div>
+                        <div class="stats">
+                            <div class="stat-item pontos">
+                                <div class="icon-box skeleton"></div>
+                                <div class="stat-content">
+                                    <div class="skeleton skeleton-text" style="width: 40px; height: 20px;"></div>
+                                    <div class="skeleton skeleton-text" style="width: 60px; height: 14px;"></div>
+                                </div>
+                            </div>
+                            <div class="stat-item emblemas">
+                                <div class="icon-box skeleton"></div>
+                                <div class="stat-content">
+                                    <div class="skeleton skeleton-text" style="width: 40px; height: 20px;"></div>
+                                    <div class="skeleton skeleton-text" style="width: 60px; height: 14px;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <!-- Section 2: Distintivos -->
+            <article class="distintivos-section skeleton-loading">
+                <div class="skeleton skeleton-text" style="width: 40%; height: 24px; margin-bottom: 16px;"></div>
+                <div class="skeleton skeleton-text" style="width: 60%; height: 16px; margin-bottom: 24px;"></div>
+                <div class="distintivos-grid">
+                    <div class="distintivo">
+                        <div class="icon skeleton" style="width: 80px; height: 80px; border-radius: 50%;"></div>
+                        <div class="skeleton skeleton-text" style="width: 80%; height: 16px; margin: 12px auto;"></div>
+                    </div>
+                    <div class="distintivo">
+                        <div class="icon skeleton" style="width: 80px; height: 80px; border-radius: 50%;"></div>
+                        <div class="skeleton skeleton-text" style="width: 80%; height: 16px; margin: 12px auto;"></div>
+                    </div>
+                    <div class="distintivo">
+                        <div class="icon skeleton" style="width: 80px; height: 80px; border-radius: 50%;"></div>
+                        <div class="skeleton skeleton-text" style="width: 80%; height: 16px; margin: 12px auto;"></div>
+                    </div>
+                </div>
+            </article>
+
+            <!-- Section 3: Missões -->
+            <article class="missoes-section skeleton-loading">
+                <div class="skeleton skeleton-text" style="width: 40%; height: 24px; margin-bottom: 16px;"></div>
+                <div class="skeleton skeleton-text" style="width: 60%; height: 16px; margin-bottom: 24px;"></div>
+                <div class="missao-list">
+                    <!-- Missão Item Skeleton -->
+                    <div class="missao-item">
+                        <div class="missao-header">
+                            <div class="missao-icon">
+                                <div class="icon-wrapper skeleton" style="width: 48px; height: 48px; border-radius: 50%;"></div>
+                            </div>
+                            <div class="missao-content">
+                                <div class="skeleton skeleton-text" style="width: 70%; height: 18px;"></div>
+                                <div class="skeleton skeleton-text" style="width: 90%; height: 16px;"></div>
+                            </div>
+                        </div>
+                        <div class="evidence-section">
+                            <div class="skeleton skeleton-text" style="width: 40%; height: 20px; margin-bottom: 12px;"></div>
+                            <div class="skeleton skeleton-text" style="width: 60%; height: 16px; margin-bottom: 20px;"></div>
+                            <div class="evidence-grid">
+                                <div class="evidence-item skeleton" style="height: 40px;"></div>
+                                <div class="evidence-item skeleton" style="height: 40px;"></div>
+                                <div class="evidence-item skeleton" style="height: 40px;"></div>
+                                <div class="evidence-item skeleton" style="height: 40px;"></div>
+                            </div>
+                            <div class="skeleton skeleton-button"></div>
+                        </div>
+                    </div>
+                </div>
+            </article>
+        </section>
+    </main>
+    <script src="script.js"></script>
+    <script src="data-loader.js"></script>
+</body>
+</html>
