@@ -1,5 +1,70 @@
-// URL base para as requisições
-const API_BASE_URL = 'https://primeira-infancia-backend.onrender.com/api';
+import { MapPanorama } from './map-panorama.js';
+
+// Adicione no início do arquivo
+(function checkDependencies() {
+    const dependencies = {
+        'MapPanorama': typeof MapPanorama !== 'undefined',
+        'L': typeof L !== 'undefined', // Se estiver usando Leaflet
+        // Adicione outras dependências aqui
+    };
+
+    const missingDependencies = Object.entries(dependencies)
+        .filter(([, exists]) => !exists)
+        .map(([name]) => name);
+
+    if (missingDependencies.length > 0) {
+        console.error('Dependências ausentes:', missingDependencies.join(', '));
+        console.error('Certifique-se de incluir todos os arquivos JS necessários na ordem correta.');
+    }
+})();
+
+// URL base para as requisições - versão mais configurável
+const API_CONFIG = {
+    local: {
+        url: 'http://localhost:3000/api',
+        port: 3000 // você pode alterar esta porta se necessário
+    },
+    production: {
+        url: 'https://primeira-infancia-backend.onrender.com/api'
+    }
+};
+
+// Tornando API_BASE_URL global
+window.API_BASE_URL = (() => {
+    const isLocalhost = window.location.hostname === 'localhost' || 
+                       window.location.hostname === '127.0.0.1';
+    
+    const environment = isLocalhost ? 'local' : 'production';
+    console.log('Ambiente detectado:', environment);
+    
+    if (environment === 'local') {
+        // Você pode sobrescrever a porta usando uma variável de ambiente ou parâmetro de URL
+        const customPort = new URLSearchParams(window.location.search).get('apiPort');
+        if (customPort) {
+            console.log('Usando porta customizada:', customPort);
+            return `http://localhost:${customPort}/api`;
+        }
+    }
+    
+    const baseUrl = API_CONFIG[environment].url;
+    console.log('API Base URL:', baseUrl);
+    return baseUrl;
+})();
+
+console.log('API Base URL:', window.API_BASE_URL);
+
+// Adicionar no início do arquivo, após as constantes existentes
+let mapPanorama = null;
+console.log('data-loader.js carregado');
+
+// Função auxiliar para verificar se MapPanorama está disponível
+function createMapPanorama() {
+    if (typeof MapPanorama === 'undefined') {
+        console.error('MapPanorama não está definido. Verifique se map-panorama.js está carregado.');
+        return null;
+    }
+    return new MapPanorama();
+}
 
 // Função para medir tempo de resposta
 function medirTempoResposta(inicio) {
@@ -12,11 +77,9 @@ function toggleLoading(show) {
     const mapContainer = document.querySelector('.map-container');
     const loadingOverlays = document.querySelectorAll('.loading-overlay:not(.skeleton-content)');
     
-    // Remover overlays existentes
     loadingOverlays.forEach(overlay => overlay.remove());
     
     if (show) {
-        // Criar e adicionar overlay de loading apenas para o mapa
         const mapOverlay = createLoadingOverlay();
         mapContainer.appendChild(mapOverlay);
         mapContainer.classList.add('loading');
@@ -32,23 +95,6 @@ function createLoadingOverlay() {
     return overlay;
 }
 
-// Verificar se o município tem os dados necessários para ser mostrado como participante
-function isValidParticipatingMunicipio(municipioData) {
-    // Verificar se temos os dados básicos necessários
-    if (!municipioData || typeof municipioData !== 'object') {
-        console.log("Município sem dados válidos");
-        return false;
-    }
-    
-    // Verificar se temos points
-    if (municipioData.points === undefined || municipioData.points === null) {
-        console.log("Município sem pontos definidos:", municipioData);
-        return false;
-    }
-    
-    return true;
-}
-
 // Verificar a função atualizarCorMapa para garantir que não está sobrescrevendo os dados
 function atualizarCorMapa(municipios) {
     if (!window.map || !window.geoJSONLayer) {
@@ -57,9 +103,6 @@ function atualizarCorMapa(municipios) {
     }
 
     console.log("Atualizando cor do mapa com municipios:", municipios.length);
-    console.log("Antes da atualização, participatingMunicipalities tem:", 
-                window.participatingMunicipalities ? window.participatingMunicipalities.size : 0, 
-                "municípios");
     
     // Preservar Set existente se já tiver sido criado
     if (!window.participatingMunicipalities) {
@@ -67,10 +110,6 @@ function atualizarCorMapa(municipios) {
             municipios.map(m => parseInt(m.codIbge))
         );
     }
-    
-    console.log("Depois da atualização, participatingMunicipalities tem:", 
-                window.participatingMunicipalities.size, 
-                "municípios");
     
     // Atualizar estilos de todas as features
     window.geoJSONLayer.eachLayer(function (layer) {
@@ -93,49 +132,41 @@ async function carregarMunicipios() {
     toggleLoading(true);
     const inicio = performance.now();
     try {
-        const response = await fetch(API_BASE_URL + '/municipios');
+        const response = await fetch(window.API_BASE_URL + '/municipios');
         if (!response.ok) throw new Error('Erro ao carregar municípios');
         const data = await response.json();
-        medirTempoResposta(inicio);
+        // medirTempoResposta(inicio);
         
         if (data.status === 'success') {
             console.log("Dados recebidos da API:", data.data.length, "municípios");
             
             // Armazenar dados globalmente
             window.municipiosData = data.data;
-
-            console.log(window.municipiosData)
             
             // Criar Set de municípios participantes
             window.participatingMunicipalities = new Set(
                 data.data.filter(m => m.status === 'Participante' && !isNaN(m.codIbge)).map(m => parseInt(m.codIbge))
             );
             
-            console.log("Municípios participantes:", window.participatingMunicipalities.size);
-            
-            // Verificar alguns dados de municípios para diagnóstico
-            if (data.data.length > 0) {
-                const amostra = data.data.slice(0, 3);
-                console.log("Amostra de dados:", amostra);
-            }
-            
-            // Atualizar select e cor do mapa
+            // Atualizar select
             popularSelectMunicipios(data.data.filter(m => m.status === 'Participante' && !isNaN(m.codIbge)));
-            
-            // Atualizar cores do mapa sem sobrescrever Set de participantes
-            atualizarCorMapa(data.data);
 
-            
-            // Atualizar todos os tooltips após carregar os dados
-            console.log("Atualizando tooltips...");
-            if (window.geoJSONLayer) {
-                window.geoJSONLayer.eachLayer(layer => {
-                    if (layer.feature && layer.feature.properties) {
-                        updateTooltipWithFullData(layer);
+            // Carregar dados do panorama
+            try {
+                const panoramaResponse = await fetch(window.API_BASE_URL + '/dashboard/map-panorama');
+                const panoramaData = await panoramaResponse.json();
+
+                if (panoramaData.status === 'success') {
+                    mapPanorama = createMapPanorama();
+                    if (mapPanorama) {
+                        console.log({panoramaData})
+                        mapPanorama.initializePanorama(panoramaData.data.desempenho);
                     }
-                });
+                }
+            } catch (error) {
+                console.error('Erro ao carregar panorama:', error);
             }
-            
+
             return data.data;
         }
         return null;
@@ -143,33 +174,16 @@ async function carregarMunicipios() {
         console.error('Erro:', error);
         throw error;
     } finally {
-        popularLayer()
         toggleLoading(false);
     }
-}
-
-function popularLayer(municipios, layerList) {
-    if (!municipios) {
-        municipios = window.municipiosData;
-    }
-
-    if (!layerList) {
-        layerList = window.geoJSONLayer;
-    }
-
-    var biggestMunicipioValue = Math.max(...municipios.map(m => m.points))
-    console.log(window.map)
-    layerList.eachLayer(layer => {
-        if (layer.feature && layer.feature.properties) {
-            layer.feature.properties.pontos = municipios.find(m => m.codIbge == layer.feature.properties.id).points / biggestMunicipioValue;
-        }
-    });
 }
 
 // Função para popular select de municípios
 function popularSelectMunicipios(municipios) {
     const select = document.getElementById('municipios');
-    select.innerHTML = '<option value="">Selecione um município</option>';
+    if (!select) return;
+    
+    select.innerHTML = '<option value="" disabled selected>Selecione um município</option>';
     
     municipios
         .sort((a, b) => a.nome.localeCompare(b.nome))
@@ -181,6 +195,11 @@ function popularSelectMunicipios(municipios) {
         });
 }
 
+/* 
+ * INÍCIO DAS FUNÇÕES DE RENDERIZAÇÃO DO PAINEL DIREITO (COMENTADAS)
+ */
+
+/*
 function showSkeletonLoading() {
     const rightPanel = document.querySelector('.right-panel');
     rightPanel.style.position = 'relative'; // Ensure relative positioning
@@ -408,173 +427,6 @@ function createMissionHTML(missao) {
     `;
 }
 
-let isLoading = false;
-
-// Função para buscar dados do município selecionado (com skeleton loading)
-async function buscarDadosMunicipio(codIbge) {
-    if (isLoading) return;
-    isLoading = true;
-
-    const isParticipating = window.participatingMunicipalities.has(parseInt(codIbge));
-    
-    if (!isParticipating) {
-        // Encontrar os dados do município usando window.municipiosData
-        const municipioData = window.municipiosData?.find(m => parseInt(m.codIbge) === parseInt(codIbge));
-        
-        // Encontrar o nome do município usando o codIbge (fallback)
-        const municipioLayer = findLayerByIBGECode(parseInt(codIbge));
-        const municipioNome = municipioData?.nome || municipioLayer?.feature?.properties?.name || 'Município';
-
-        const rightPanel = document.querySelector('.right-panel');
-        
-        // Adicionar overlay de loading
-        const loadingOverlay = document.createElement('div');
-        loadingOverlay.className = 'loading-overlay';
-        loadingOverlay.innerHTML = '<div class="loading-spinner"></div>';
-        rightPanel.appendChild(loadingOverlay);
-
-        try {
-            console.log(municipioData)
-            rightPanel.innerHTML = `
-                <article class="municipality-section">
-                    <div class="municipality-header">
-                        <div class="municipality-image skeleton">
-                            <div class="municipality-image-placeholder"></div>
-                            <img src="${getThumbnailUrl(municipioData?.imagemAvatar) || 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120"%3E%3Crect width="120" height="120" fill="%23f5f5f5"/%3E%3C/svg%3E'}"
-                                 alt="${municipioNome}"
-                                 class="municipality-image-real"
-                                 onerror="this.style.display='none'"
-                                 onload="this.parentElement.classList.remove('skeleton'); this.style.opacity = '1';"
-                            />
-                        </div>
-                        <div class="municipality-info">
-                            <h2>${municipioNome}</h2>
-                            <div class="nao-participante">
-                                <i class="fas fa-info-circle"></i>
-                                <p>O município ainda não aderiu ao Pacto Cearense pela Primeira Infância.</p>
-                            </div>
-                            <button class="evidence-submit-btn" style="margin-top: 16px;">
-                                Aderir agora
-                                <i class="fa-solid fa-arrow-up-right-from-square"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div id="chartContainer" style="width: 300px; height: 300px;"></div>
-                </article>
-            `;
-        } finally {
-            // Remover overlay de loading
-            rightPanel.querySelector('.loading-overlay')?.remove();
-            createPieChart('chartContainer');
-
-            isLoading = false;
-        }
-        return;
-    }
-
-    const rightPanel = document.querySelector('.right-panel');
-    const selectMunicipio = document.getElementById('municipios');
-
-    // Desabilitar interações
-    if (window.map) {
-        window.map.dragging.disable();
-        window.map.touchZoom.disable();
-        window.map.doubleClickZoom.disable();
-        window.map.scrollWheelZoom.disable();
-        window.map.boxZoom.disable();
-        window.map.keyboard.disable();
-        window.map._handlers.forEach(handler => handler.disable());
-        window.map.getContainer().style.pointerEvents = 'none';
-    }
-    if (selectMunicipio) selectMunicipio.disabled = true;
-    
-    // Add loading overlay without removing current content
-    const loadingOverlay = document.createElement('div');
-    loadingOverlay.className = 'loading-overlay';
-    loadingOverlay.innerHTML = '<div class="loading-spinner"></div>';
-    rightPanel.appendChild(loadingOverlay);
-    
-    const inicio = performance.now();
-    try {
-        const response = await fetch(API_BASE_URL + '/municipios/' + codIbge);
-
-        if (!response.ok) throw new Error('Erro ao carregar dados do município');
-        
-        const responseData = await response.json();
-        medirTempoResposta(inicio);
-        console.log('Dados do município:', responseData);
-        
-        if (responseData.data) {
-            updateRightMenu(JSON.parse(responseData.data.json).data);
-        }
-        
-        return responseData;
-    } catch (error) {
-        console.error('Erro:', error);
-    } finally {
-        // Remove loading overlay
-        rightPanel.querySelector('.loading-overlay')?.remove();
-        // Reabilitar interações
-        if (window.map) {
-            window.map.dragging.enable();
-            window.map.touchZoom.enable();
-            window.map.doubleClickZoom.enable();
-            window.map.scrollWheelZoom.enable();
-            window.map.boxZoom.enable();
-            window.map.keyboard.enable();
-            window.map._handlers.forEach(handler => handler.enable());
-            window.map.getContainer().style.pointerEvents = 'auto';
-        }
-        if (selectMunicipio) selectMunicipio.disabled = false;
-        isLoading = false;
-    }
-}
-
-// Event Listeners
-document.addEventListener('DOMContentLoaded', function() {
-    // Carregar lista inicial de municípios
-    carregarMunicipios();
-    // Listener para mudança no select
-    const selectMunicipio = document.getElementById('municipios');
-    selectMunicipio.addEventListener('change', async function() {
-        if (this.value) {
-            const dados = await buscarDadosMunicipio(this.value);
-            // Aqui você pode implementar a lógica para atualizar a interface com os dados
-        }
-    });
-});
-
-// Função para atualizar município selecionado (chamada pelo mapa ou select)
-function atualizarMunicipioSelecionado(codIbge, origem) {
-    console.log(`Município selecionado: ${codIbge} (origem: ${origem})`);
-    
-    // Atualizar select se a seleção veio do mapa
-    if (origem === 'mapa') {
-        const select = document.getElementById('municipios');
-        select.value = codIbge;
-    }
-    
-    // Buscar dados do município
-    buscarDadosMunicipio(codIbge);
-}
-
-// Exportar funções para uso global
-window.atualizarMunicipioSelecionado = atualizarMunicipioSelecionado;
-
-// Função para extrair o ID da imagem do URL do Google Drive
-function getThumbnailUrl(driveUrl) {
-    if (!driveUrl) return '';
-
-    const regex = /\/d\/(.*?)(\/|$)/; // Regex para capturar o ID entre /d/ e /view
-    const match = driveUrl.match(regex);
-    console.log({driveUrl});
-    if (match && match[1]) {
-        const imageId = match[1]; // Extrai o ID
-        return `https://drive.google.com/thumbnail?id=${imageId}`; // Retorna a URL da miniatura
-    }
-    return ''; // Retorna string vazia se o URL não for válido
-}
-
 function createPieChart(containerId) {
     // Create a canvas element
     const canvas = document.createElement('canvas');
@@ -623,16 +475,90 @@ function createPieChart(containerId) {
         }
     });
 }
+*/
+
+/*
+ * FIM DAS FUNÇÕES DE RENDERIZAÇÃO DO PAINEL DIREITO (COMENTADAS)
+ */
+
+// Função para extrair o ID da imagem do URL do Google Drive
+function getThumbnailUrl(driveUrl) {
+    if (!driveUrl) return '';
+
+    const regex = /\/d\/(.*?)(\/|$)/; // Regex para capturar o ID entre /d/ e /view
+    const match = driveUrl.match(regex);
+    console.log({driveUrl});
+    if (match && match[1]) {
+        const imageId = match[1]; // Extrai o ID
+        return `https://drive.google.com/thumbnail?id=${imageId}`; // Retorna a URL da miniatura
+    }
+    return ''; // Retorna string vazia se o URL não for válido
+}
+
+let isLoading = false;
+
+// Função para buscar dados do município selecionado (simplificada, sem renderização)
+async function buscarDadosMunicipio(codIbge) {
+    if (isLoading) return;
+    isLoading = true;
+
+    const inicio = performance.now();
+    try {
+        const response = await fetch(window.API_BASE_URL + '/municipios/' + codIbge);
+
+        if (!response.ok) throw new Error('Erro ao carregar dados do município');
+        
+        const responseData = await response.json();
+        // medirTempoResposta(inicio);
+        
+        return responseData;
+    } catch (error) {
+        console.error('Erro:', error);
+    } finally {
+        isLoading = false;
+    }
+}
+
+// Event Listeners
+document.addEventListener('DOMContentLoaded', function() {
+    // Carregar lista inicial de municípios
+    // carregarMunicipios();
+    // // Listener para mudança no select
+    // const selectMunicipio = document.getElementById('municipios');
+    // selectMunicipio.addEventListener('change', async function() {
+    //     if (this.value) {
+    //         const dados = await buscarDadosMunicipio(this.value);
+    //         // Aqui você pode implementar a lógica para atualizar a interface com os dados
+    //     }
+    // });
+});
+
+// Função para atualizar município selecionado (chamada pelo mapa ou select)
+function atualizarMunicipioSelecionado(codIbge, origem) {
+    console.log(`Município selecionado: ${codIbge} (origem: ${origem})`);
+    
+    // Atualizar select se a seleção veio do mapa
+    if (origem === 'mapa') {
+        const select = document.getElementById('municipios');
+        if (select) select.value = codIbge;
+    }
+    
+    // Buscar dados do município
+    buscarDadosMunicipio(codIbge);
+}
+
+// Exportar funções para uso global
+window.atualizarMunicipioSelecionado = atualizarMunicipioSelecionado;
 
 // Função para carregar o panorama de missões
 async function carregarPanoramaMissoes() {
     toggleLoading(true);
     const inicio = performance.now();
     try {
-        const response = await fetch(API_BASE_URL + '/missoes/panorama');
+        const response = await fetch(window.API_BASE_URL + '/dashboard/mission-panorama');
         if (!response.ok) throw new Error('Erro ao carregar panorama de missões');
         const data = await response.json();
-        medirTempoResposta(inicio);
+        // medirTempoResposta(inicio);
         
         if (data.status === 'success') {
             console.log("Dados de panorama de missões recebidos:", data.data.length, "missões");
@@ -656,3 +582,93 @@ function visualizarMissaoNoMapa(missionId) {
 // Exportar funções para uso global
 window.carregarPanoramaMissoes = carregarPanoramaMissoes;
 window.visualizarMissaoNoMapa = visualizarMissaoNoMapa;
+
+// Exportar apenas funções necessárias
+export {
+    carregarMunicipios,
+    buscarDadosMunicipio,
+    atualizarCorMapa
+    // showSkeletonLoading, // Comentado - função de renderização do painel direito
+    // updateRightMenu // Comentado - função de renderização do painel direito
+};
+
+// Adicionar esta função para inicializar o panorama do mapa independentemente
+async function initializeMapPanorama() {
+    console.log('Inicializando panorama do mapa...');
+    
+    // Verificar se a camada GeoJSON está inicializada
+    if (!window.geoJSONLayer) {
+        console.log('Camada GeoJSON ainda não inicializada. Aguardando...');
+        
+        // Esperar até que a camada GeoJSON esteja disponível (com timeout)
+        let attempts = 0;
+        const maxAttempts = 10;
+        
+        while (!window.geoJSONLayer && attempts < maxAttempts) {
+            console.log(`Tentativa ${attempts + 1} de ${maxAttempts} para encontrar a camada GeoJSON...`);
+            await new Promise(resolve => setTimeout(resolve, 500)); // Esperar 500ms
+            attempts++;
+        }
+        
+        if (!window.geoJSONLayer) {
+            console.error('Camada GeoJSON não foi inicializada após várias tentativas.');
+            return false;
+        }
+        
+        console.log('Camada GeoJSON encontrada após espera.');
+    }
+    
+    try {
+        const panoramaResponse = await fetch(window.API_BASE_URL + '/dashboard/map-panorama');
+        if (!panoramaResponse.ok) {
+            throw new Error('Erro ao carregar dados do panorama');
+        }
+        
+        const panoramaData = await panoramaResponse.json();
+        
+        if (panoramaData.status === 'success') {
+            mapPanorama = createMapPanorama();
+            if (mapPanorama) {
+                console.log('Dados do panorama recebidos:', panoramaData.data);
+                mapPanorama.initializePanorama(panoramaData.data.desempenho);
+                return true;
+            }
+        } else {
+            console.error('Resposta da API com status diferente de success:', panoramaData);
+        }
+    } catch (error) {
+        console.error('Erro ao inicializar panorama do mapa:', error);
+        
+        // Tentar carregar do arquivo local como fallback
+        try {
+            console.log('Tentando carregar dados do arquivo local como fallback...');
+            const localResponse = await fetch('map-panorama-response.json');
+            if (!localResponse.ok) {
+                throw new Error('Arquivo local não encontrado');
+            }
+            
+            const localData = await localResponse.json();
+            if (localData.status === 'success') {
+                mapPanorama = createMapPanorama();
+                if (mapPanorama) {
+                    console.log('Dados do panorama carregados do arquivo local');
+                    mapPanorama.initializePanorama(localData.data.desempenho);
+                    return true;
+                }
+            }
+        } catch (localError) {
+            console.error('Erro ao carregar dados locais:', localError);
+        }
+    }
+    
+    return false;
+}
+
+// Exportar a função para uso global
+window.initializeMapPanorama = initializeMapPanorama;
+
+// Adicionar ao evento DOMContentLoaded
+document.addEventListener('DOMContentLoaded', function() {
+    // Inicializar o panorama do mapa
+    initializeMapPanorama();
+});

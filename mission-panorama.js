@@ -47,24 +47,52 @@ async function carregarDadosLocais() {
     `;
     
     try {
-        // Carregar dados do arquivo local JSON
-        const response = await fetch('mission-panorama-response.json');
-        if (!response.ok) {
-            throw new Error('Erro ao carregar dados locais');
-        }
-        
-        const data = await response.json();
-        console.log("Dados carregados:", data);
-        
-        if (data.status === 'success' && data.data) {
-            // Renderizar o panorama de missões
-            renderizarPanoramaMissoes(data.data);
-            return data.data;
-        } else {
-            throw new Error('Formato de dados inválido');
+        // Primeiro tentar carregar da API
+        console.log("Tentando carregar dados da API...");
+        try {
+            const apiUrl = `${window.API_BASE_URL}/dashboard/mission-panorama`;
+            console.log("URL da API:", apiUrl);
+            
+            const apiResponse = await fetch(apiUrl, { timeout: 5000 });
+            if (apiResponse.ok) {
+                const apiData = await apiResponse.json();
+                console.log("Dados carregados da API:", apiData);
+                
+                if (apiData.status === 'success' && apiData.data) {
+                    // Renderizar o panorama de missões com dados da API
+                    renderizarPanoramaMissoes(apiData.data);
+                    return apiData.data;
+                } else {
+                    console.warn("Formato de dados inválido da API, tentando arquivo local");
+                    throw new Error('Formato de dados inválido da API');
+                }
+            } else {
+                console.warn("Resposta da API não foi bem-sucedida:", apiResponse.status);
+                throw new Error(`Erro na resposta da API: ${apiResponse.status}`);
+            }
+        } catch (apiError) {
+            console.warn("Erro ao carregar dados da API:", apiError.message);
+            console.log("Tentando carregar do arquivo local como fallback...");
+            
+            // Se falhar, tentar carregar do arquivo local
+            const response = await fetch('mission-panorama-response.json');
+            if (!response.ok) {
+                throw new Error('Erro ao carregar dados locais');
+            }
+            
+            const data = await response.json();
+            console.log("Dados carregados do arquivo local:", data);
+            
+            if (data.status === 'success' && data.data) {
+                // Renderizar o panorama de missões
+                renderizarPanoramaMissoes(data.data);
+                return data.data;
+            } else {
+                throw new Error('Formato de dados inválido no arquivo local');
+            }
         }
     } catch (error) {
-        console.error('Erro ao carregar dados locais:', error);
+        console.error('Erro ao carregar dados:', error);
         panoramaContainer.innerHTML = `
             <div class="erro-carregamento">
                 <i class="fas fa-exclamation-triangle"></i>
@@ -75,14 +103,242 @@ async function carregarDadosLocais() {
     }
 }
 
+// Adicionar estado global para missão e filtros
+window.missionState = {
+    selectedMission: null,
+    selectedFilter: 'all', // 'all', 'completed', 'started', 'pending'
+    mapFilter: null
+};
+
+// Função para atualizar o estado da missão
+function updateMissionState(missionId) {
+    console.log("Atualizando estado da missão:", missionId);
+    
+    // Atualizar o estado global
+    window.missionState.selectedMission = missionId;
+    
+    // Destacar a missão selecionada
+    highlightSelectedMission(missionId);
+    
+    // Buscar dados da missão
+    fetchMissionData(missionId);
+    
+    // Atualizar o alerta de missão selecionada
+    updateMissionFilterAlert(missionId);
+    
+    // Se um município já estiver selecionado, recarregar suas informações
+    // para mostrar o desempenho específico na missão
+    const municipioSelect = document.getElementById('municipio-select');
+    if (municipioSelect && municipioSelect.value) {
+        const selectedMunicipioId = municipioSelect.value;
+        console.log("Município já selecionado:", selectedMunicipioId);
+        
+        // Verificar se existe a instância do MapPanorama
+        if (window.mapPanoramaInstance) {
+            console.log("Recarregando informações do município com a missão selecionada");
+            window.mapPanoramaInstance.loadMunicipioInfo(selectedMunicipioId);
+        }
+    }
+}
+
+// Função para atualizar o alerta de missão selecionada
+function updateMissionFilterAlert(missionId) {
+    console.log("Atualizando alerta de missão selecionada:", missionId);
+    
+    const alertContainer = document.getElementById('mission-filter-alert');
+    if (!alertContainer) {
+        console.warn("Container de alerta não encontrado");
+        return;
+    }
+    
+    // Encontrar a missão selecionada
+    const selectedMission = findMissionById(missionId);
+    
+    if (selectedMission) {
+        console.log("Missão encontrada:", selectedMission);
+        alertContainer.innerHTML = `
+            <div class="alert alert-secondary" role="alert">
+                <strong>Mostrando resultados para a missão:</strong><br>
+                ${selectedMission.descricao_da_missao}
+            </div>
+        `;
+    } else {
+        console.warn("Missão não encontrada para o ID:", missionId);
+        alertContainer.innerHTML = '';
+    }
+}
+
+// Função auxiliar para encontrar uma missão pelo ID
+function findMissionById(missionId) {
+    // Verificar se temos dados de missões carregados
+    const panoramaContainer = document.getElementById('panorama-missoes');
+    if (!panoramaContainer) return null;
+    
+    // Tentar encontrar o card da missão
+    const missionCard = document.querySelector(`.mission-card[data-mission-id="${missionId}"]`);
+    if (!missionCard) return null;
+    
+    // Extrair a descrição da missão do card
+    const missionTitle = missionCard.querySelector('.mission-title p');
+    if (!missionTitle) return null;
+    
+    return {
+        id: missionId,
+        descricao_da_missao: missionTitle.textContent
+    };
+}
+
+// Função para destacar a missão selecionada
+function highlightSelectedMission(missionId) {
+    console.log("Destacando missão:", missionId);
+    
+    // Resetar todos os cards
+    document.querySelectorAll('.mission-card').forEach(card => {
+        card.style.opacity = '0.5';
+        card.style.border = 'none';
+    });
+    
+    // Destacar o card selecionado
+    const selectedCard = document.querySelector(`.mission-card[data-mission-id="${missionId}"]`);
+    if (selectedCard) {
+        console.log("Card encontrado, aplicando destaque");
+        selectedCard.style.opacity = '1';
+        selectedCard.style.border = '2px solid #FFD700'; // Borda dourada
+    } else {
+        console.warn("Card não encontrado para o ID:", missionId);
+    }
+}
+
+// Função para buscar dados da missão
+async function fetchMissionData(missionId) {
+    console.log("Buscando dados da missão:", missionId);
+    
+    try {
+        // Usar a URL base global
+        let url = `${window.API_BASE_URL}/dashboard/mission-panorama/${missionId}`;
+        
+        console.log("Usando URL da API:", url);
+        
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`Erro ao carregar dados da missão: ${response.status}`);
+        }
+
+        console.log({response});
+        
+        // Usar diretamente response.json() para processar a resposta
+        const data = await response.json();
+        console.log("Dados da missão recebidos:", data);
+        console.log({data});
+        
+        if (data.status === 'success') {
+            updateMapColors(data.data);
+        } else {
+            console.error("Resposta da API com status diferente de success:", data);
+            
+            // Fallback: se a API falhar, tentar carregar do arquivo local
+            console.log("Tentando carregar do arquivo local como fallback");
+            await fetchMissionDataFromFile(missionId);
+        }
+    } catch (error) {
+        console.error('Erro ao buscar dados da missão da API:', error);
+        
+        // Fallback: se a API falhar, tentar carregar do arquivo local
+        console.log("Tentando carregar do arquivo local como fallback");
+        await fetchMissionDataFromFile(missionId);
+    }
+}
+
+// Função para buscar dados da missão de um arquivo local (fallback)
+async function fetchMissionDataFromFile(missionId) {
+    try {
+        const response = await fetch('mission-panorama-by-id-response.json');
+        if (!response.ok) {
+            throw new Error(`Erro ao carregar arquivo local: ${response.status}`);
+        }
+        
+        const responseText = await response.text();
+        
+        if (!responseText || responseText.trim() === '') {
+            throw new Error("Arquivo local vazio");
+        }
+        
+        try {
+            const data = JSON.parse(responseText);
+            console.log("Dados carregados do arquivo local:", data);
+            
+            if (data.status === 'success') {
+                updateMapColors(data.data);
+            } else {
+                console.error("Formato de dados inválido no arquivo local");
+            }
+        } catch (jsonError) {
+            console.error("Erro ao analisar JSON do arquivo local:", jsonError);
+            throw new Error("Erro ao analisar JSON do arquivo local");
+        }
+    } catch (error) {
+        console.error('Erro ao carregar dados do arquivo local:', error);
+    }
+}
+
+// Função para atualizar cores do mapa
+function updateMapColors(missionData) {
+    console.log("Atualizando cores do mapa com dados:", missionData);
+    
+    if (!window.geoJSONLayer) {
+        console.error('Camada GeoJSON não inicializada');
+        return;
+    }
+    
+    // Criar conjuntos para busca rápida
+    const completedMunicipios = new Set(missionData.completedMunicipios.map(m => m.codIbge));
+    const startedMunicipios = new Set(missionData.startedMunicipios.map(m => m.codIbge));
+    const pendingMunicipios = new Set(missionData.pendingMunicipios.map(m => m.codIbge));
+    
+    console.log("Municípios completados:", completedMunicipios.size);
+    console.log("Municípios iniciados:", startedMunicipios.size);
+    console.log("Municípios pendentes:", pendingMunicipios.size);
+    
+    // Atualizar cada camada no mapa
+    window.geoJSONLayer.eachLayer(layer => {
+        if (layer.feature && layer.feature.properties) {
+            const codIbge = layer.feature.properties.id;
+            let color = '#FFFFFF'; // cor padrão
+            
+            if (completedMunicipios.has(codIbge)) {
+                color = '#12447F'; // azul para completados
+            } else if (startedMunicipios.has(codIbge)) {
+                color = '#72C576'; // verde para iniciados
+            } else if (pendingMunicipios.has(codIbge)) {
+                color = '#9F9F9F'; // cinza para pendentes
+            }
+            
+            // Usar a função global para atualizar a cor
+            if (window.updateLayerColor) {
+                window.updateLayerColor(layer, color);
+            } else {
+                console.warn("Função updateLayerColor não encontrada, usando fallback");
+                layer.setStyle({ fillColor: color });
+            }
+        }
+    });
+    
+    console.log("Cores do mapa atualizadas");
+}
+
 // Função para renderizar o panorama de missões
 function renderizarPanoramaMissoes(missoes) {
     const panoramaContainer = document.getElementById('panorama-missoes');
     
-    // Header do panorama
+    // Header do panorama com botão de limpar filtros
     const headerHTML = `
         <div class="panorama-header">
-            <h2>Panorama de missões</h2>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2>Panorama de missões</h2>
+                <button id="limpar-filtros-mapa" class="btn btn-outline-primary">
+                    <i class="fas fa-refresh"></i> Limpar filtros do mapa
+                </button>
+            </div>
             <p class="panorama-description">
                 Cada card abaixo representa uma missão específica e mostra a quantidade de municípios que já a concluíram. 
                 Acesse "<strong>Ver no mapa</strong>" para visualizar no mapa interativo os municípios que completaram, estão em ação ou não iniciaram essa missão.
@@ -99,7 +355,7 @@ function renderizarPanoramaMissoes(missoes) {
                 const categoryIcon = window.getIconByCategoryId ? window.getIconByCategoryId(missao.categoria) : '<i class="fas fa-star"></i>';
                 
                 return `
-                    <div class="mission-card" style="background: ${backgroundColor};" data-categoria="${missao.categoria}">
+                    <div class="mission-card" style="background: ${backgroundColor};" data-categoria="${missao.categoria}" data-mission-id="${missao.id}">
                         <div class="category-pill" style="background: ${backgroundColor};">
                             <span class="category-icon">${categoryIcon}</span>
                             <span class="category-text">${missao.descricao_da_categoria}</span>
@@ -111,14 +367,11 @@ function renderizarPanoramaMissoes(missoes) {
                             <div class="progress" style="position: relative; height: 15px; width: 100%;">
                                 <div class="progress-bar"
                                      role="progressbar" 
-                                     style="width: ${Math.round((countValid / totalMunicipios) * 100)}%; background: linear-gradient(to right, #50B755, #066829);" 
+                                     style="width: ${Math.round((countValid / totalMunicipios) * 100)}%; background: linear-gradient(to right, #FFDD9A, #FCBA38);" 
                                      aria-valuenow="${countValid}" 
                                      aria-valuemin="0" 
                                      aria-valuemax="${totalMunicipios}">
                                 </div>
-                                <span class="position-absolute" style="right: calc(100% - ${Math.round((countValid / totalMunicipios) * 100)}%); transform: translateX(50%); z-index: 10;">
-                                    <i class="fas fa-star" style="color: #E79D0D; font-size: 18px;"></i>
-                                </span>
                             </div>
                             <div class="points-chip" style="font-weight: bold; font-size: 16px; display: flex; align-items: center; gap: 4px;">
                                 <span>${countValid}/${totalMunicipios}</span>
@@ -136,29 +389,35 @@ function renderizarPanoramaMissoes(missoes) {
     // Combinar o HTML e atualizar o container
     panoramaContainer.innerHTML = headerHTML + cardsHTML;
     
+    // Adicionar event listener ao botão de limpar filtros
+    const btnLimparFiltros = document.getElementById('limpar-filtros-mapa');
+    if (btnLimparFiltros) {
+        btnLimparFiltros.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log("Botão Limpar filtros do mapa clicado");
+            limparFiltrosMapa();
+        });
+        console.log("Event listener adicionado ao botão limpar-filtros-mapa");
+    } else {
+        console.warn("Botão limpar-filtros-mapa não encontrado após renderização");
+    }
+    
     // Adicionar event listeners aos botões "Ver no mapa"
     document.querySelectorAll('.view-map-button').forEach(button => {
-        button.addEventListener('click', (e) => {
+        button.addEventListener('click', function(e) {
             e.preventDefault();
-            const missionId = button.getAttribute('data-mission-id');
-            // Verificar se a função de visualização existe
-            if (typeof window.visualizarMissaoNoMapa === 'function') {
-                window.visualizarMissaoNoMapa(missionId);
-            } else {
-                // Fallback: redirecionar para a página do mapa com o ID da missão como parâmetro
-                const missionParam = new URLSearchParams(window.location.search).get('mission');
-                if (!missionParam) {
-                    // Só atualiza a URL se já não estiver visualizando uma missão
-                    const currentUrl = new URL(window.location.href);
-                    currentUrl.searchParams.set('mission', missionId);
-                    window.history.pushState({}, '', currentUrl);
-                    
-                    // Scroll para o mapa
-                    const mapElement = document.querySelector('.map-container');
-                    if (mapElement) {
-                        mapElement.scrollIntoView({ behavior: 'smooth' });
-                    }
-                }
+            console.log("Botão Ver no mapa clicado");
+            
+            const missionId = this.getAttribute('data-mission-id');
+            console.log("ID da missão:", missionId);
+            
+            // Atualizar o estado da missão
+            updateMissionState(missionId);
+            
+            // Scroll para o mapa
+            const mapElement = document.querySelector('.map-container');
+            if (mapElement) {
+                mapElement.scrollIntoView({ behavior: 'smooth' });
             }
         });
     });
@@ -281,13 +540,13 @@ function inicializarEventListenersEventos() {
     }
 }
 
-// Função para carregar os eventos da API
+// Função para carregar eventos
 async function carregarEventos() {
     console.log("Carregando eventos com configuração:", eventosConfig);
-    const eventosContainer = document.getElementById('eventos-content');
     
+    const eventosContainer = document.getElementById('eventos-content');
     if (!eventosContainer) {
-        console.error("Elemento 'eventos-content' não encontrado");
+        console.error("Container de eventos não encontrado");
         return;
     }
     
@@ -299,73 +558,8 @@ async function carregarEventos() {
     `;
     
     try {
-        // Em ambiente local, sempre usar dados de exemplo para evitar problemas com bloqueadores
-        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:') {
-            console.log("Ambiente local detectado, usando dados locais sem tentar API");
-            
-            // Primeiro tentar carregar do arquivo local
-            try {
-                console.log("Tentando carregar dados do arquivo local event-response.json");
-                const response = await fetch('event-response.json');
-                if (!response.ok) {
-                    console.warn("Arquivo event-response.json não encontrado ou erro na resposta:", response.status);
-                    throw new Error('Arquivo não encontrado');
-                }
-                const data = await response.json();
-                console.log("Dados carregados do arquivo local:", data);
-                
-                // Verificar se os dados foram carregados com sucesso
-                if (data && data.status === 'success' && data.data) {
-                    // Filtrar os eventos localmente se um tipo específico foi selecionado
-                    let eventosData = data.data;
-                    if (eventosConfig.tipoEvento) {
-                        eventosData = eventosData.filter(evento => evento.event === eventosConfig.tipoEvento);
-                        // Atualizar paginação com base nos eventos filtrados
-                        const totalEventosFiltrados = eventosData.length;
-                        const paginacao = {
-                            ...data.pagination,
-                            total: totalEventosFiltrados,
-                            pages: Math.ceil(totalEventosFiltrados / eventosConfig.limite)
-                        };
-                        console.log("Renderizando eventos filtrados localmente:", eventosData.length);
-                        renderizarEventos(eventosData, paginacao);
-                    } else {
-                        console.log("Renderizando todos os eventos do arquivo local");
-                        renderizarEventos(data.data, data.pagination);
-                    }
-                    return;
-                } else {
-                    throw new Error('Formato de dados inválido no arquivo local');
-                }
-            } catch (error) {
-                // Se não encontrar o arquivo ou houver erro, usar dados de exemplo
-                console.log('Erro ao carregar arquivo local:', error.message);
-                console.log('Usando dados de exemplo para eventos');
-                const data = gerarDadosExemploEventos();
-                console.log("Dados de exemplo gerados:", data);
-                
-                // Filtrar os dados de exemplo se um tipo foi selecionado
-                let eventosData = data.data;
-                if (eventosConfig.tipoEvento) {
-                    eventosData = eventosData.filter(evento => evento.event === eventosConfig.tipoEvento);
-                    // Atualizar paginação
-                    const totalEventosFiltrados = eventosData.length;
-                    const paginacao = {
-                        ...data.pagination,
-                        total: totalEventosFiltrados,
-                        pages: Math.ceil(totalEventosFiltrados / eventosConfig.limite)
-                    };
-                    renderizarEventos(eventosData, paginacao);
-                } else {
-                    renderizarEventos(data.data, data.pagination);
-                }
-                return;
-            }
-        }
-        
-        // Se não estivermos em ambiente local, tentar API
-        // Construir URL da API com parâmetros - usar string para evitar erros de URL
-        let urlString = eventosConfig.apiUrl;
+        // Construir URL da API com parâmetros
+        let urlString = `${window.API_BASE_URL}/eventos`;
         urlString += `?page=${eventosConfig.pagina}`;
         urlString += `&limit=${eventosConfig.limite}`;
         
@@ -400,24 +594,64 @@ async function carregarEventos() {
             } else {
                 throw new Error('Formato de dados inválido da API');
             }
-        } catch (error) {
-            console.error('Erro ao carregar dados da API, usando dados de exemplo:', error);
-            const data = gerarDadosExemploEventos();
+        } catch (apiError) {
+            console.error('Erro ao carregar dados da API, tentando arquivo local:', apiError);
             
-            // Filtrar os dados de exemplo se um tipo foi selecionado
-            let eventosData = data.data;
-            if (eventosConfig.tipoEvento) {
-                eventosData = eventosData.filter(evento => evento.event === eventosConfig.tipoEvento);
-                // Atualizar paginação
-                const totalEventosFiltrados = eventosData.length;
-                const paginacao = {
-                    ...data.pagination,
-                    total: totalEventosFiltrados,
-                    pages: Math.ceil(totalEventosFiltrados / eventosConfig.limite)
-                };
-                renderizarEventos(eventosData, paginacao);
-            } else {
-                renderizarEventos(data.data, data.pagination);
+            // Tentar carregar do arquivo local
+            try {
+                console.log("Tentando carregar dados do arquivo local event-response.json");
+                const response = await fetch('event-response.json');
+                if (!response.ok) {
+                    console.warn("Arquivo event-response.json não encontrado ou erro na resposta:", response.status);
+                    throw new Error('Arquivo não encontrado');
+                }
+                const data = await response.json();
+                console.log("Dados carregados do arquivo local:", data);
+                
+                // Verificar se os dados foram carregados com sucesso
+                if (data && data.status === 'success' && data.data) {
+                    // Filtrar os eventos localmente se um tipo específico foi selecionado
+                    let eventosData = data.data;
+                    if (eventosConfig.tipoEvento) {
+                        eventosData = eventosData.filter(evento => evento.event === eventosConfig.tipoEvento);
+                        // Atualizar paginação com base nos eventos filtrados
+                        const totalEventosFiltrados = eventosData.length;
+                        const paginacao = {
+                            ...data.pagination,
+                            total: totalEventosFiltrados,
+                            pages: Math.ceil(totalEventosFiltrados / eventosConfig.limite)
+                        };
+                        console.log("Renderizando eventos filtrados localmente:", eventosData.length);
+                        renderizarEventos(eventosData, paginacao);
+                    } else {
+                        console.log("Renderizando todos os eventos do arquivo local");
+                        renderizarEventos(data.data, data.pagination);
+                    }
+                } else {
+                    throw new Error('Formato de dados inválido no arquivo local');
+                }
+            } catch (localError) {
+                // Se não encontrar o arquivo ou houver erro, usar dados de exemplo
+                console.log('Erro ao carregar arquivo local:', localError.message);
+                console.log('Usando dados de exemplo para eventos');
+                const data = gerarDadosExemploEventos();
+                console.log("Dados de exemplo gerados:", data);
+                
+                // Filtrar os dados de exemplo se um tipo foi selecionado
+                let eventosData = data.data;
+                if (eventosConfig.tipoEvento) {
+                    eventosData = eventosData.filter(evento => evento.event === eventosConfig.tipoEvento);
+                    // Atualizar paginação
+                    const totalEventosFiltrados = eventosData.length;
+                    const paginacao = {
+                        ...data.pagination,
+                        total: totalEventosFiltrados,
+                        pages: Math.ceil(totalEventosFiltrados / eventosConfig.limite)
+                    };
+                    renderizarEventos(eventosData, paginacao);
+                } else {
+                    renderizarEventos(data.data, data.pagination);
+                }
             }
         }
     } catch (error) {
@@ -745,4 +979,64 @@ function atualizarPaginacao(paginacao) {
             }
         });
     });
+}
+
+// Função para limpar filtros do mapa
+function limparFiltrosMapa() {
+    console.log("Limpando filtros do mapa");
+    
+    // Resetar o estado global
+    window.missionState.selectedMission = null;
+    window.missionState.selectedFilter = 'all';
+    window.missionState.mapFilter = null;
+    
+    // Resetar destaque dos cards
+    document.querySelectorAll('.mission-card').forEach(card => {
+        card.style.opacity = '1';
+        card.style.border = 'none';
+    });
+    
+    // Limpar o alerta de missão selecionada
+    const alertContainer = document.getElementById('mission-filter-alert');
+    if (alertContainer) {
+        alertContainer.innerHTML = '';
+    }
+    
+    // Recarregar informações do município selecionado (se houver)
+    const municipioSelect = document.getElementById('municipio-select');
+    if (municipioSelect && municipioSelect.value && window.mapPanoramaInstance) {
+        window.mapPanoramaInstance.loadMunicipioInfo(municipioSelect.value);
+    }
+    
+    // Aplicar coloração básica do mapa
+    if (window.geoJSONLayer) {
+        // Verificar se existe uma instância de MapPanorama
+        if (window.mapPanoramaInstance) {
+            console.log("Usando MapPanorama para atualizar as cores do mapa");
+            // Deixar o MapPanorama atualizar as cores com base nos níveis
+            window.mapPanoramaInstance.updateMapColors();
+        } else {
+            console.log("Instância de MapPanorama não encontrada, aplicando cores manualmente");
+            // Fallback: aplicar cores manualmente
+            window.geoJSONLayer.eachLayer(layer => {
+                if (layer.feature && layer.feature.properties) {
+                    // Cor padrão para municípios participantes
+                    let color = '#72C576'; // verde para participantes
+                    
+                    // Usar a função global para atualizar a cor
+                    if (window.updateLayerColor) {
+                        console.log('Aplicando cor padrão:', color);
+                        window.updateLayerColor(layer, color);
+                    } else {
+                        console.warn("Função updateLayerColor não encontrada, usando fallback");
+                        layer.setStyle({ fillColor: color });
+                    }
+                }
+            });
+        }
+    } else {
+        console.warn("Camada GeoJSON não inicializada");
+    }
+    
+    console.log("Filtros do mapa limpos com sucesso");
 } 

@@ -1,0 +1,194 @@
+#municipio-map-info {
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.municipality-header {
+    display: flex;
+    gap: 15px;
+}
+
+.municipality-image {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    overflow: hidden;
+    position: relative;
+}
+
+.municipality-image-placeholder {
+    width: 100%;
+    height: 100%;
+    background-color: #f5f5f5;
+}
+
+.municipality-image-real {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.municipality-info {
+    flex: 1;
+}
+
+.municipality-info h2 {
+    font-size: 1.2rem;
+    margin-bottom: 0;
+}
+
+.level-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.level-header h3 {
+    font-size: 1rem;
+    margin: 0;
+}
+
+.progress-bar {
+    /* Esses estilos agora vêm do Bootstrap */
+}
+
+.progress {
+    /* Esses estilos agora vêm do Bootstrap */
+}
+
+.progress-helper {
+    font-size: 0.8rem;
+    color: #6c757d;
+    margin-bottom: 10px;
+}
+
+.stats {
+    display: flex;
+    gap: 15px;
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.icon-box {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: #f8f9fa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #27884A;
+}
+
+.stat-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.number {
+    font-weight: bold;
+    line-height: 1;
+}
+
+.label {
+    font-size: 0.8rem;
+    color: #6c757d;
+}
+
+.skeleton {
+    position: relative;
+    overflow: hidden;
+}
+
+.skeleton::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    transform: translateX(-100%);
+    background-image: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0) 0,
+        rgba(255, 255, 255, 0.2) 20%,
+        rgba(255, 255, 255, 0.5) 60%,
+        rgba(255, 255, 255, 0)
+    );
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+/* Estilos para a seção de missões */
+.municipality-missions {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #e9ecef;
+}
+
+.missions-title {
+    font-size: 1.1rem;
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+
+.missions-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.mission-pill {
+    font-size: 0.85rem;
+    padding: 0.5em 0.85em;
+    font-weight: 500;
+    border: 1px solid #dee2e6;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.mission-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: white;
+}
+
+.mission-badge.started {
+    background-color: #17a2b8; /* Azul para "Em ação" */
+}
+
+.mission-badge.valid {
+    background-color: #28a745; /* Verde para "Concluídas" */
+}
+
+.mission-badge.pending {
+    background-color: #ffc107; /* Amarelo para "Pendentes" */
+    color: #212529;
+}
+
+.badge-count {
+    font-weight: 700;
+    margin-right: 5px;
+}
+
+.badge-label {
+    font-weight: 400;
+} 

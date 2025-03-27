@@ -58,15 +58,17 @@ html, body {
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    transition: transform 0.2s, box-shadow 0.2s;
+    transition: all 0.3s ease;
     height: 100%;
     position: relative;
     margin-bottom: 20px;
     padding-top: 16px;
     border-top: 4px solid transparent; /* For gradient border */
+    border: 2px solid transparent;
 }
 
 .mission-card:hover {
+    opacity: 1 !important;
     transform: translateY(-5px);
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
 }
@@ -233,10 +235,10 @@ html, body {
 /* Points chip como em styles.css */
 .mission-card .points-chip {
     background-image: linear-gradient(to right, #FFDE2D, #F6CE56, #E9B330);
-    color: transparent;
+    color: white;
     background-clip: text;
     -webkit-background-clip: text;
-    font-size: 18px;
+    font-size: 16px;
 }
 
 .points-chip i {

@@ -1,0 +1,22 @@
+{
+    "status": "success",
+    "data": {
+      "mapPanorama": {
+        "municipio": {
+          "codIbge": "2300408",
+          "nome": "Aiuaba",
+          "status": "Participante",
+          "imagemAvatar": "https://drive.google.com/uc?export=view&id=1kj56delT_YMq-3v7MSb6g21TOWNgNwC8",
+          "badges": 0,
+          "points": 0
+        },
+        "countValid": 2,
+        "countPending": 0,
+        "countStarted": 7,
+        "totalMissoes": 9,
+        "points": 40
+      },
+      "level": 1,
+      "totalPoints": 40
+    }
+  }

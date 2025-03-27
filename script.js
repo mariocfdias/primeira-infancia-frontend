@@ -49,8 +49,7 @@ async function initializeApplication() {
             color: '#333333',
             weight: 2,
             opacity: 0.8,
-            fillOpacity: 0.35,
-            fillColor: '#fff8db'
+            fillOpacity: 0.35
         }
     };
 
@@ -60,21 +59,23 @@ async function initializeApplication() {
     );
 
     try {
-        // Depois inicializar o mapa
+        // Inicializar o mapa
         window.map = await initializeMap(cearaBounds);
 
-        // Por fim, carregar o GeoJSON
+        // Carregar o GeoJSON
         await loadGeoJSON(window.map, mapConfig.style);
 
-        // Carregar dados dos municípios apenas depois que o mapa estiver pronto
+        // Carregar dados dos municípios
         await carregarMunicipios();
+        
+        // Inicializar o panorama do mapa após o GeoJSON estar carregado
+        if (window.initializeMapPanorama) {
+            await window.initializeMapPanorama();
+        }
     } catch (error) {
         console.error('Erro na inicialização:', error);
     }
 
-    // Setup Event Listeners
-    setupEventListeners();
-    
     // Initialize UI
     updateProgress();
     disableMapControls(window.map);
@@ -111,8 +112,7 @@ function createGeoJSONLayer(data, style) {
     window.geoJSONLayer = L.geoJSON(data, {
         style: function(feature) {
             return {
-                ...style,
-                fillColor: window.getColor(feature)
+                ...style
             };
         },
         onEachFeature: setupFeatureInteractions
@@ -122,158 +122,48 @@ function createGeoJSONLayer(data, style) {
 
 function setupFeatureInteractions(feature, layer) {
     if (feature.properties) {
-        // Inicialmente adiciona um tooltip básico
-        addBasicTooltip(layer, feature.properties.name);
+        // Adicionar tooltip básico com apenas o nome do município
+        layer.bindTooltip(feature.properties.name, {
+            permanent: false,
+            direction: 'left',
+            className: 'municipality-tooltip'
+        });
         
         layer.on({
             mouseover: async (e) => {
                 const codIbge = parseInt(layer.feature.properties.id);
-                
-                // Verifica se o município está na lista de participantes
                 const isParticipating = window.participatingMunicipalities.has(codIbge);
                 updateLayerOpacity(e.target, 1);
-                console.log(e.target)
-                updateLayerColor(e.target, isParticipating ? '#227AB8' : '#333');
-                
-                // Atualiza o tooltip com dados completos se necessário
-                await updateTooltipWithFullData(e.target);
             },
             mouseout: (e) => {
                 const codIbge = parseInt(layer.feature.properties.id);
-                
-                // Verifica se o município está na lista de participantes
-                const isParticipating = window.participatingMunicipalities.has(codIbge);
-                // Only reset opacity on mouseout if this isn't the currently selected layer
                 const selectedLayer = window.selectedLayer;
-                updateLayerColor(e.target, isParticipating ? '#3D8CC3' : '#f7f4e9');
                 if (!selectedLayer || e.target !== selectedLayer) {
                     updateLayerOpacity(e.target, 0.5);
                 }
             },
             click: (e) => {
-                // Store the currently selected layer
                 window.selectedLayer = e.target;
                 
-                // Reset all layers to default opacity
                 if (window.geoJSONLayer) {
                     window.geoJSONLayer.eachLayer((l) => {
                         updateLayerOpacity(l, 0.35);
                     });
                 }
                 
-                // Set the clicked layer to full opacity
                 updateLayerOpacity(e.target, 1);
                 
-                // Get the IBGE code and call your update function
                 const cod_ibge = parseInt(e.target.feature.properties.id);
                 atualizarMunicipioSelecionado(cod_ibge, 'mapa');
             },
             onfocus: (e) => updateLayerOpacity(e.target, 1),
             blur: (e) => {
-                // Only reset opacity on blur if this isn't the currently selected layer
                 const selectedLayer = window.selectedLayer;
                 if (!selectedLayer || e.target !== selectedLayer) {
                     updateLayerOpacity(e.target, 0.35);
                 }
             }
         });
-    }
-}
-
-function addBasicTooltip(layer, name) {
-    layer.bindTooltip(`
-        <div class="non-participating">
-            <div class="tooltip-title">${name}</div>
-            <div class="tooltip-description">Carregando dados do município...</div>
-        </div>
-    `, {
-        direction: 'bottom-right',
-        opacity: 1,
-        offset: L.point(10, 30),
-        className: 'custom-tooltip non-participating',
-        permanent: false,
-        sticky: true
-    });
-}
-
-// Verificar se o município tem os dados necessários para ser mostrado como participante
-function isValidParticipatingMunicipio(municipioData) {
-    // Verificar se temos os dados básicos necessários
-    if (!municipioData || typeof municipioData !== 'object') {
-        console.log("Município sem dados válidos");
-        return false;
-    }
-    
-    // Verificar se temos points
-    if (municipioData.points === undefined || municipioData.points === null) {
-        console.log("Município sem pontos definidos:", municipioData);
-        return false;
-    }
-    
-    return true;
-}
-
-async function updateTooltipWithFullData(layer) {
-    const codIbge = parseInt(layer.feature.properties.id);
-    const name = layer.feature.properties.name;
-    
-    // Verifica se o município está na lista de participantes
-    const isParticipating = window.participatingMunicipalities.has(codIbge);
-    
-    // Busca os dados do município
-    const municipioData = window.municipiosData?.find(m => 
-        parseInt(m.codIbge) === codIbge
-    );
-
-    let tooltipContent;
-    const isValid = isParticipating && isValidParticipatingMunicipio(municipioData);
-    
-    if (isValid) {
-        // Município participante com dados
-        const nivel = Math.floor(municipioData.points / 100) + 1;
-        const pontosNivel = municipioData.points % 100;
-        tooltipContent = `
-            <div class="tooltip-participating">
-                <h3>${name}</h3>
-                <div class="level-info">
-                    <span>Nível ${nivel}</span>
-                    <span class="progress-count">${pontosNivel}/100 <i class="fas fa-star"></i></span>
-                </div>
-                <div class="progress-bar">
-                    <div class="progress" style="width: ${pontosNivel}%;"></div>
-                </div>
-                <div class="stats">
-                    <div class="stat-item">
-                        <i class="fas fa-star"></i>
-                        <span>${municipioData.points} pontos</span>
-                    </div>
-                    <div class="stat-item">
-                        <i class="fas fa-medal"></i>
-                        <span>${municipioData.badges || 0} emblemas</span>
-                    </div>
-                </div>
-            </div>
-        `;
-    } else {
-        // Município não participante
-        tooltipContent = `
-            <div class="non-participating">
-                <div class="tooltip-title">${name}</div>
-                <div class="tooltip-description">Este município não aderiu ao <br/> Pacto da Primeira Infância.</div>
-            </div>
-        `;
-    }
-
-    // Atualiza o tooltip existente
-    layer.setTooltipContent(tooltipContent);
-    
-    // Atualiza a classe do tooltip
-    const tooltip = layer.getTooltip();
-    if (tooltip) {
-        tooltip.setContent(tooltipContent);
-        tooltip.options.className = isValid 
-            ? 'custom-tooltip participating' 
-            : 'custom-tooltip non-participating';
     }
 }
 
@@ -657,7 +547,7 @@ function atualizarCorMapa(municipios) {
             const isParticipating = window.participatingMunicipalities.has(id);
             
             layer.setStyle({
-                fillColor: isParticipating ? '#12447F' : '#fff8db',
+                // fillColor: isParticipating ? '#12447F' : '#fff8db',
                 fillOpacity: 0.35,
                 color: '#333333',
                 weight: 2,
@@ -668,48 +558,32 @@ function atualizarCorMapa(municipios) {
 }
 
 async function carregarMunicipios() {
-    toggleLoading(true);
+    // toggleLoading(true);
     const inicio = performance.now();
     try {
         const response = await fetch(API_BASE_URL + '/municipios');
         if (!response.ok) throw new Error('Erro ao carregar municípios');
         const data = await response.json();
-        medirTempoResposta(inicio);
+        // medirTempoResposta(inicio);
         
         if (data.status === 'success') {
             console.log("Dados recebidos da API:", data.data.length, "municípios");
             
-            // Armazenar dados globalmente
             window.municipiosData = data.data;
             
-            // Criar Set de municípios participantes
             window.participatingMunicipalities = new Set(
                 data.data.map(m => parseInt(m.codIbge))
             );
             
             console.log("Municípios participantes:", window.participatingMunicipalities.size);
             
-            // Verificar alguns dados de municípios para diagnóstico
             if (data.data.length > 0) {
                 const amostra = data.data.slice(0, 3);
                 console.log("Amostra de dados:", amostra);
             }
             
-            // Atualizar select e cor do mapa
-            popularSelectMunicipios(data.data);
-            
-            // Atualizar cores do mapa sem sobrescrever Set de participantes
-            atualizarCorMapa(data.data);
-            
-            // Atualizar todos os tooltips após carregar os dados
-            console.log("Atualizando tooltips...");
-            if (window.geoJSONLayer) {
-                window.geoJSONLayer.eachLayer(layer => {
-                    if (layer.feature && layer.feature.properties) {
-                        updateTooltipWithFullData(layer);
-                    }
-                });
-            }
+            // popularSelectMunicipios(data.data);
+            // atualizarCorMapa(data.data);
             
             return data.data;
         }
@@ -718,7 +592,7 @@ async function carregarMunicipios() {
         console.error('Erro:', error);
         throw error;
     } finally {
-        toggleLoading(false);
+        // toggleLoading(false);
     }
 }
 
@@ -762,9 +636,3 @@ async function highlightMissionMunicipalities(missionId) {
         console.error("Error highlighting mission municipalities:", error);
     }
 }
-
-// Call the function on page load
-document.addEventListener('DOMContentLoaded', function() {
-    checkURLParameters();
-    // ... existing code ...
-});
