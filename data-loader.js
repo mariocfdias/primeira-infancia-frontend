@@ -623,3 +623,36 @@ function createPieChart(containerId) {
         }
     });
 }
+
+// Função para carregar o panorama de missões
+async function carregarPanoramaMissoes() {
+    toggleLoading(true);
+    const inicio = performance.now();
+    try {
+        const response = await fetch(API_BASE_URL + '/missoes/panorama');
+        if (!response.ok) throw new Error('Erro ao carregar panorama de missões');
+        const data = await response.json();
+        medirTempoResposta(inicio);
+        
+        if (data.status === 'success') {
+            console.log("Dados de panorama de missões recebidos:", data.data.length, "missões");
+            return data.data;
+        }
+        return null;
+    } catch (error) {
+        console.error('Erro:', error);
+        throw error;
+    } finally {
+        toggleLoading(false);
+    }
+}
+
+// Função para visualizar missão no mapa
+function visualizarMissaoNoMapa(missionId) {
+    console.log(`Visualizando missão ${missionId} no mapa`);
+    // Implementação futura - mostrar no mapa os municípios que completaram a missão
+}
+
+// Exportar funções para uso global
+window.carregarPanoramaMissoes = carregarPanoramaMissoes;
+window.visualizarMissaoNoMapa = visualizarMissaoNoMapa;

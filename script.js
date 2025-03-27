@@ -721,3 +721,50 @@ async function carregarMunicipios() {
         toggleLoading(false);
     }
 }
+
+// Function to check for URL parameters on page load
+function checkURLParameters() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const missionId = urlParams.get('mission');
+    
+    if (missionId) {
+        console.log(`Loading mission data for: ${missionId}`);
+        // We'll implement this in the future to show mission-specific data
+        highlightMissionMunicipalities(missionId);
+    }
+}
+
+// Function to highlight municipalities that completed a specific mission
+async function highlightMissionMunicipalities(missionId) {
+    try {
+        // Show some notification that we're loading mission data
+        const notificationDiv = document.createElement('div');
+        notificationDiv.className = 'mission-notification';
+        notificationDiv.innerHTML = `
+            <div class="notification-content">
+                <i class="fas fa-info-circle"></i>
+                <p>Carregando dados da missão ${missionId}...</p>
+            </div>
+        `;
+        document.body.appendChild(notificationDiv);
+        
+        // In a future implementation, this would fetch actual mission data from the backend
+        // For now, we'll just show a notification
+        
+        // Remove notification after 3 seconds
+        setTimeout(() => {
+            notificationDiv.classList.add('fade-out');
+            setTimeout(() => {
+                notificationDiv.remove();
+            }, 500);
+        }, 3000);
+    } catch (error) {
+        console.error("Error highlighting mission municipalities:", error);
+    }
+}
+
+// Call the function on page load
+document.addEventListener('DOMContentLoaded', function() {
+    checkURLParameters();
+    // ... existing code ...
+});

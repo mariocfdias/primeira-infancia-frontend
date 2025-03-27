@@ -1,3 +1,85 @@
+/* Header e Footer Styles */
+.main-header {
+    background-color: #227AB8;
+    color: white;
+    padding: 15px 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.header-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo img {
+    height: 50px;
+}
+
+.main-nav ul {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.main-nav li {
+    margin-left: 20px;
+}
+
+.main-nav a {
+    color: white;
+    text-decoration: none;
+    font-weight: 500;
+    padding: 10px 15px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.main-nav a:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.main-nav a.active {
+    background-color: rgba(255, 255, 255, 0.2);
+    font-weight: 700;
+}
+
+.main-footer {
+    background-color: #333;
+    color: white;
+    padding: 20px;
+    text-align: center;
+    margin-top: 40px;
+}
+
+.footer-content {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Responsividade do header e footer */
+@media (max-width: 768px) {
+    .header-content {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .logo {
+        margin-bottom: 15px;
+    }
+    
+    .main-nav ul {
+        justify-content: center;
+    }
+    
+    .main-nav li {
+        margin: 0 10px;
+    }
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -262,7 +344,7 @@ select {
     color: #EB9B00;
 }
 
-.progress-bar {
+/* .progress-bar {
     height: 20px;
     background: #d9d9d9;
     border-radius: 17px;
@@ -270,13 +352,13 @@ select {
     margin: 2px 0 1px 0;
     position: relative;
     z-index: 100;
-}
+} */
 
-.progress {
+/* .progress {
     height: 100%;
     background: linear-gradient(to right, #FFDD9A, #FCBA38);
     border-radius: 17px;
-}
+} */
 
 .progress-helper {
     font-family: 'Noto Sans', sans-serif;
@@ -1051,12 +1133,12 @@ select:focus,
     .level-header {
         margin: 0px 0 0px 0;
     }
-
+/* 
     .progress-bar {
         margin: 2px 0;
         position: relative;
         z-index: 2;
-    }
+    } */
 
     .progress-helper {
         margin: 2px 0;
@@ -1139,9 +1221,6 @@ select:focus,
         height: auto;
         max-height: none;
         overflow-y: auto;
-        min-width: 0;
-        margin: 0;
-        padding: 10px;
     }
 
     .right-panel {
@@ -2248,11 +2327,11 @@ h2 {
         margin: 0;
     }
 
-    .progress-bar {
+    /* .progress-bar {
         margin: 2px 0;
         position: relative;
         z-index: 2;
-    }
+    } */
 
     .progress-helper {
         margin: 2px 0;
@@ -2276,6 +2355,64 @@ h2 {
     .municipality-image-real {
         width: 100%;
         height: 100%;
+    }
+}
+
+/* Mission notification styles */
+.mission-notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background-color: rgba(34, 122, 184, 0.9);
+    color: white;
+    padding: 15px 20px;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    animation: slide-in 0.3s ease-out;
+    max-width: 300px;
+    backdrop-filter: blur(4px);
+}
+
+.notification-content {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.notification-content i {
+    font-size: 24px;
+}
+
+.notification-content p {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.mission-notification.fade-out {
+    animation: fade-out 0.5s ease-out forwards;
+}
+
+@keyframes slide-in {
+    0% {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    100% {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes fade-out {
+    0% {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    100% {
+        transform: translateX(20px);
+        opacity: 0;
     }
 }
 

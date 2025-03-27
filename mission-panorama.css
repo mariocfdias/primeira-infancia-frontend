@@ -1,0 +1,614 @@
+/* Estilos para o panorama de missões */
+
+/* Scroll behavior adjustments */
+html, body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.panorama-container {
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 40px 20px;
+    font-family: 'Atkinson Hyperlegible', sans-serif;
+    background: #f5f5f5;
+}
+
+.panorama-section {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.panorama-header {
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.panorama-header h2 {
+    font-size: 28px;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.panorama-description {
+    font-size: 16px;
+    color: #555;
+    line-height: 1.5;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+/* Grid de cards de missões */
+.mission-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+    margin-top: 30px;
+}
+
+/* Estilos para os cards de missão - alinhados com missao-item */
+.mission-card {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.2s, box-shadow 0.2s;
+    height: 100%;
+    position: relative;
+    margin-bottom: 20px;
+    padding-top: 16px;
+    border-top: 4px solid transparent; /* For gradient border */
+}
+
+.mission-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+}
+
+/* Pill badge estilo Bootstrap 4 */
+.category-pill {
+    display: inline-flex;
+    align-items: center;
+    margin-left: 16px;
+    padding: 5px 12px;
+    border-radius: 50px;
+    color: white;
+    font-size: 14px;
+    font-weight: 500;
+    max-width: calc(100% - 32px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.category-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 6px;
+    height: 24px;
+    width: 24px;
+}
+
+.category-icon svg {
+    height: 20px;
+    width: 20px;
+    fill: currentColor;
+}
+
+.category-text {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Conteúdo da missão - alinhado com missao-content */
+.mission-title {
+    padding: 16px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    color: white;
+}
+
+.mission-title p {
+    font-family: 'Noto Sans', sans-serif;
+    font-weight: 400;
+    font-size: 18px;
+    color: white;
+    line-height: 1.4;
+    margin-bottom: 8px;
+    min-height: 50px;
+}
+
+/* Estatísticas da missão */
+.mission-stats {
+    padding: 0 16px 16px;
+    font-size: 18px;
+    font-weight: bold;
+    color: #227AB8;
+    display: flex;
+    align-items: center;
+}
+
+.mission-stats span {
+    margin-right: 5px;
+}
+
+/* Botão para ver no mapa - alinhado com evidence-submit-btn */
+.view-map-button {
+    display: inline-flex;
+    margin: 0 16px 16px;
+    padding: 8px 16px;
+    background-color: #12447F;
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    font-family: 'Noto Sans', sans-serif;
+    letter-spacing: 1px;
+    font-size: 18px;
+    font-weight: 600;
+    align-items: center;
+    gap: 8px;
+    transition: background-color 0.3s ease;
+    width: auto;
+    min-width: 160px;
+    justify-content: center;
+}
+
+.view-map-button:hover {
+    background-color: #0d3566;
+}
+
+.view-map-button i {
+    margin-left: 8px;
+}
+
+/* Estilos para o loading */
+.panorama-section .loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+}
+
+/* Loading spinner - igual ao de styles.css */
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #227AB8;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Estilos para skeletons de loading */
+.skeleton {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+}
+
+.skeleton-text {
+    border-radius: 4px;
+    margin-bottom: 10px;
+}
+
+.skeleton-button {
+    border-radius: 4px;
+}
+
+@keyframes loading {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* Estilos para mensagem de erro */
+.erro-carregamento {
+    text-align: center;
+    padding: 30px;
+    color: #d32f2f;
+}
+
+.erro-carregamento i {
+    font-size: 40px;
+    margin-bottom: 15px;
+}
+
+/* Points chip como em styles.css */
+.mission-card .points-chip {
+    background-image: linear-gradient(to right, #FFDE2D, #F6CE56, #E9B330);
+    color: transparent;
+    background-clip: text;
+    -webkit-background-clip: text;
+    font-size: 18px;
+}
+
+.points-chip i {
+    color: #E9B330;
+}
+
+/* ESTILOS PARA A SEÇÃO DE EVENTOS */
+
+/* Seção de eventos */
+.eventos-section {
+    max-width: 1200px;
+    margin: 60px auto 0;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    padding: 30px;
+    position: relative;
+}
+
+.eventos-header {
+    margin-bottom: 30px;
+}
+
+.eventos-header h2 {
+    font-size: 28px;
+    color: #333;
+    margin-bottom: 10px;
+    font-weight: 700;
+}
+
+.eventos-description {
+    font-size: 16px;
+    color: #555;
+    line-height: 1.5;
+}
+
+.text-emphasis {
+    font-weight: 700;
+    color: #333;
+}
+
+/* Filtros de eventos */
+.eventos-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-bottom: 25px;
+    align-items: flex-end;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.filter-label {
+    font-size: 14px;
+    font-weight: 500;
+    color: #555;
+    margin-bottom: 8px;
+}
+
+/* Filtro de tipo de evento */
+.tipo-evento-filter .btn-group {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.tipo-evento-filter .btn-outline-primary {
+    color: #555;
+    border-color: #ddd;
+    background-color: #fff;
+    font-weight: 500;
+    padding: 8px 16px;
+}
+
+.tipo-evento-filter .btn-outline-primary:hover, 
+.tipo-evento-filter .btn-check:checked + .btn-outline-primary {
+    background-color: #12447F;
+    color: white;
+    border-color: #12447F;
+}
+
+.tipo-evento-filter .btn-check:checked + .btn-outline-primary i {
+    color: #FFDE2D;
+}
+
+/* Filtro de município */
+.municipio-filter {
+    flex: 1;
+    min-width: 250px;
+}
+
+.municipio-filter .form-control {
+    width: 100%;
+    padding: 8px 16px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    background-color: #fff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.municipio-filter .form-control::placeholder {
+    color: #aaa;
+}
+
+/* Filtro de ordenação */
+.order-filter {
+    min-width: 180px;
+}
+
+.select-container {
+    position: relative;
+}
+
+.order-filter .form-select {
+    appearance: none;
+    width: 100%;
+    padding: 8px 16px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    background-color: #fff;
+    font-weight: 500;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.select-arrow {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    color: #555;
+}
+
+/* Conteúdo de eventos */
+.eventos-content {
+    min-height: 400px;
+    position: relative;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    padding: 15px;
+}
+
+/* Card de evento */
+.evento-card {
+    display: flex;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    margin-bottom: 10px;
+    padding: 15px;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.evento-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+}
+
+.evento-municipio-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-right: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #e0e0e0;
+    color: #666;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.evento-municipio-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.evento-card-content {
+    flex: 1;
+}
+
+.evento-municipio-title {
+    font-weight: 700;
+    margin-bottom: 3px;
+}
+
+.evento-missao-text {
+    font-size: 14px;
+    color: #555;
+    line-height: 1.4;
+}
+
+.evento-points-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 5px;
+    background-image: linear-gradient(to right, #FFDE2D, #F6CE56, #E9B330);
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    font-weight: bold;
+}
+
+.evento-points-badge i {
+    color: #E9B330;
+}
+
+.evento-card-date {
+    margin-left: auto;
+    min-width: 80px;
+    text-align: right;
+    color: #777;
+    font-size: 14px;
+}
+
+/* Paginação */
+.eventos-pagination {
+    margin-top: 20px;
+}
+
+.eventos-pagination .page-link {
+    color: #12447F;
+    border-color: #ddd;
+}
+
+.eventos-pagination .page-item.active .page-link {
+    background-color: #12447F;
+    border-color: #12447F;
+    color: white;
+}
+
+.eventos-pagination .page-item.disabled .page-link {
+    color: #aaa;
+}
+
+/* Responsividade - ajustada para corresponder a styles.css */
+@media (max-width: 1024px) {
+    .panorama-container {
+        padding: 30px 15px;
+    }
+    
+    .mission-cards-grid {
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    }
+    
+    .view-map-button {
+        min-width: 200px;
+    }
+    
+    .mission-title p {
+        font-size: 16px;
+    }
+    
+    .eventos-filters {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .filter-group {
+        width: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    .panorama-container {
+        padding: 20px 10px;
+    }
+    
+    .mission-cards-grid {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    }
+    
+    .category-icon {
+        height: 20px;
+        width: 20px;
+    }
+    
+    .view-map-button {
+        min-width: 80px;
+        font-size: 16px;
+    }
+    
+    .eventos-section {
+        padding: 20px 15px;
+    }
+    
+    .evento-card {
+        flex-direction: column;
+    }
+    
+    .evento-municipio-avatar {
+        margin-bottom: 10px;
+    }
+    
+    .evento-card-date {
+        text-align: left;
+        margin-left: 0;
+        margin-top: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .panorama-container {
+        padding: 15px 5px;
+    }
+    
+    .mission-cards-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .panorama-header h2 {
+        font-size: 24px;
+    }
+    
+    .panorama-description {
+        font-size: 14px;
+    }
+    
+    .category-pill {
+        max-width: calc(100% - 32px);
+        font-size: 12px;
+    }
+    
+    .category-icon {
+        height: 18px;
+        width: 18px;
+    }
+    
+    .eventos-header h2 {
+        font-size: 24px;
+    }
+}
+
+/* Remove scroll from right panel */
+.right-panel {
+    overflow-y: visible !important;
+    height: auto !important;
+}
+
+/* Adjust container layout */
+.container {
+    height: auto !important;
+    overflow: visible !important;
+}
+
+/* Main content wrapper */
+.main-content {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+/* Panels wrapper */
+.panels-wrapper {
+    display: flex;
+    width: 100%;
+    margin-bottom: 40px;
+    gap: 15px;
+}
+
+@media (max-width: 1024px) {
+    .panels-wrapper {
+        flex-direction: column;
+    }
+    
+    .left-panel,
+    .right-panel {
+        width: 100%;
+    }
+} 
