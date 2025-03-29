@@ -1,0 +1,178 @@
+{
+    "status": "success",
+    "data": {
+      "codIbge": "2300408",
+      "nome": "Aiuaba",
+      "status": "Participante",
+      "dataAlteracao": "1970-01-05T17:49:50.000Z",
+      "imagemAvatar": "https://drive.google.com/uc?export=view&id=1kj56delT_YMq-3v7MSb6g21TOWNgNwC8",
+      "badges": 0,
+      "points": 0,
+      "json": null,
+      "orgao": false,
+      "desempenhos": [
+        {
+          "id": 15987,
+          "codIbge": "2300408",
+          "missaoId": "CTG2-MISSAO1",
+          "validation_status": "STARTED",
+          "updated_at": "2025-03-15T19:51:43.000Z",
+          "evidence": "[{\"evidencia\":\"https://drive.google.com/open?id=1zGJH3QHYw_VSZvl6F46Uev0I6Qa3JmWB\",\"title\":\"Evidência 1\"},{\"evidencia\":\"https://drive.google.com/open?id=1RdEfN__vQCaLXq2m0mQFazcqpDlZz1gO\",\"title\":\"Evidência 2\"},{\"evidencia\":\"https://drive.google.com/open?id=1zE5ridB3KXhWe2UZ1pBlb27rER8xOBf_\",\"title\":\"Evidência 3\"},{\"evidencia\":\"dasjdlksamfçlsafasdfas\",\"title\":\"Evidência 4\"}]",
+          "missao": {
+            "id": "CTG2-MISSAO1",
+            "categoria": "CTG2",
+            "descricao_da_categoria": "Fortalecimento da Governança",
+            "emblema_da_categoria": "https://drive.google.com/file/d/14dyU3ZDElTxWsJIP7LTjzlszgmxhGMsu/view?usp=sharing",
+            "descricao_da_missao": "Priorizar a primeira infância na gestão de políticas e na alocação de recursos",
+            "qnt_pontos": 30,
+            "link_formulario": "https://docs.google.com/forms/d/e/1FAIpQLSeHaSK7hAev3M9HWl8Ar41gLpk1IMDMto-vr49w2CHyj5FQog/viewform?usp=sharing",
+            "evidencias": "[{\"titulo\":\"Assinatura do Pacto pela Primeira Infância\",\"descricao\":\"Assinatura do Pacto pela Primeira Infância do Ceará.\"},{\"titulo\":\"Instituição do Comitê Intersetorial\",\"descricao\":\"Portaria de instituição do Comitê Intersetorial de políticas públicas para a primeira infância, garantida a participação social por meio dos conselhos de direitos.\"},{\"titulo\":\"Plano de Ação Intersetorial Anual\",\"descricao\":\"Plano de ação para o exercício, elaborado em conjunto entre as secretarias, com as definições dos objetivos, metas, prazos, unidades responsáveis pela ação e indicadores a serem monitorados.\"},{\"titulo\":\"Relatórios de Execução Orçamentária\",\"descricao\":\"Relatórios de execução orçamentária que demonstrem a aplicação dos recursos próprios em programas, projetos ou atividades voltadas exclusivamente para a primeira infância.\"}]"
+          }
+        },
+        {
+          "id": 16171,
+          "codIbge": "2300408",
+          "missaoId": "CTG2-MISSAO2",
+          "validation_status": "STARTED",
+          "updated_at": "2025-03-15T19:51:44.000Z",
+          "evidence": "[{\"evidencia\":\"https://drive.google.com/open?id=1zGJH3QHYw_VSZvl6F46Uev0I6Qa3JmWB\",\"title\":\"Evidência 1\"},{\"evidencia\":\"https://drive.google.com/open?id=1RdEfN__vQCaLXq2m0mQFazcqpDlZz1gO\",\"title\":\"Evidência 2\"},{\"evidencia\":\"https://drive.google.com/open?id=1zE5ridB3KXhWe2UZ1pBlb27rER8xOBf_\",\"title\":\"Evidência 3\"},{\"evidencia\":\"dasjdlksamfçlsafasdfas\",\"title\":\"Evidência 4\"}]",
+          "missao": {
+            "id": "CTG2-MISSAO2",
+            "categoria": "CTG2",
+            "descricao_da_categoria": "Fortalecimento da Governança",
+            "emblema_da_categoria": "https://drive.google.com/file/d/14dyU3ZDElTxWsJIP7LTjzlszgmxhGMsu/view?usp=sharing",
+            "descricao_da_missao": "Elaborar, implementar, monitorar e divulgar os planos municipais para a primeira infância, alinhados ao Marco Legal da Primeira Infância e baseados em evidências locais, com objetivos, metas e indicadores claros",
+            "qnt_pontos": 25,
+            "link_formulario": "https://docs.google.com/forms/d/e/1FAIpQLSdLl9Glk0uLbDuxcmuPFBPtG6-hwRHrPMU7yHbuBOqSCWJaGw/viewform?usp=sharing",
+            "evidencias": "[{\"titulo\":\"Plano Municipal pela Primeira Infância (PMPI)\",\"descricao\":\"Plano Municipal pela Primeira Infância (PMPI) elaborado e publicizado com o envio dos dados de forma estruturada, conforme template fornecido pelo TCE/CE\"},{\"titulo\":\"Relatórios de Monitoramento e Avaliação do PMPI\",\"descricao\":\"Relatórios de monitoramento e avaliação do PMPI.\"},{\"titulo\":\"Publicação, em site oficial, do PMPI e Relatórios Correlatos\",\"descricao\":\"Publicação, em site oficial da Prefeitura, do Relatório de Monitoramento e avaliação do PMPI e do Relatórios de execução orçamentária que demonstrem a aplicação dos recursos nos programas, projetos ou atividades voltados para a primeira infância.\"}]"
+          }
+        },
+        {
+          "id": 16355,
+          "codIbge": "2300408",
+          "missaoId": "CTG2-MISSAO3",
+          "validation_status": "STARTED",
+          "updated_at": "2025-03-15T19:51:45.000Z",
+          "evidence": "[{\"evidencia\":\"https://drive.google.com/open?id=1zGJH3QHYw_VSZvl6F46Uev0I6Qa3JmWB\",\"title\":\"Evidência 1\"},{\"evidencia\":\"https://drive.google.com/open?id=1RdEfN__vQCaLXq2m0mQFazcqpDlZz1gO\",\"title\":\"Evidência 2\"},{\"evidencia\":\"https://drive.google.com/open?id=1zE5ridB3KXhWe2UZ1pBlb27rER8xOBf_\",\"title\":\"Evidência 3\"},{\"evidencia\":\"dasjdlksamfçlsafasdfas\",\"title\":\"Evidência 4\"}]",
+          "missao": {
+            "id": "CTG2-MISSAO3",
+            "categoria": "CTG2",
+            "descricao_da_categoria": "Fortalecimento da Governança",
+            "emblema_da_categoria": "https://drive.google.com/file/d/14dyU3ZDElTxWsJIP7LTjzlszgmxhGMsu/view?usp=sharing",
+            "descricao_da_missao": "Promover a articulação intersetorial entre as diferentes secretarias municipais, assim como dos dados produzidos e acompanhados por essas secretarias",
+            "qnt_pontos": 25,
+            "link_formulario": "https://docs.google.com/forms/d/e/1FAIpQLSftzBJaYj53eCWCcHzEcgSfbJ9RpfVgHOk4ph0lpaSsHW1-yw/viewform?usp=sharing",
+            "evidencias": "[{\"titulo\":\"Instituição do Comitê Intersetorial com Participação Social\",\"descricao\":\"Portaria de instituição do Comitê Intersetorial de políticas públicas para a primeira infância, garantida a participação social por meio dos conselhos de direitos.\"},{\"titulo\":\"Atas de reuniões do Comitê Intersetorial\",\"descricao\":\"Atas de reuniões e documentos que comprovem a articulação intersetorial, no mínimo 4 atas\"},{\"titulo\":\"Plano de Ação Intersetorial Anual\",\"descricao\":\"Plano de ação para o exercício, elaborado em conjunto entre as secretarias, com as definições dos objetivos, metas, prazos, unidades responsáveis pela ação e indicadores a serem monitorados.\"}]"
+          }
+        },
+        {
+          "id": 16539,
+          "codIbge": "2300408",
+          "missaoId": "CTG2-MISSAO4",
+          "validation_status": "STARTED",
+          "updated_at": "2025-03-21T12:57:59.000Z",
+          "evidence": "[{\"evidencia\":\"https://drive.google.com/open?id=1zGJH3QHYw_VSZvl6F46Uev0I6Qa3JmWB\",\"title\":\"Evidência 1\"},{\"evidencia\":\"https://drive.google.com/open?id=1RdEfN__vQCaLXq2m0mQFazcqpDlZz1gO\",\"title\":\"Evidência 2\"},{\"evidencia\":\"https://drive.google.com/open?id=1zE5ridB3KXhWe2UZ1pBlb27rER8xOBf_\",\"title\":\"Evidência 3\"},{\"evidencia\":\"dasjdlksamfçlsafasdfas\",\"title\":\"Evidência 4\"}]",
+          "missao": {
+            "id": "CTG2-MISSAO4",
+            "categoria": "CTG2",
+            "descricao_da_categoria": "Fortalecimento da Governança",
+            "emblema_da_categoria": "https://drive.google.com/file/d/14dyU3ZDElTxWsJIP7LTjzlszgmxhGMsu/view?usp=sharing",
+            "descricao_da_missao": "Realizar campanhas e atividades educativas para disseminar o conhecimento sobre os direitos da criança entre a população e a sociedade civil",
+            "qnt_pontos": 10,
+            "link_formulario": "https://docs.google.com/forms/d/e/1FAIpQLSdkUinZE60PAOTxI6vbMauePZhEfU93Q4QJTQ76mbeetcVbeA/viewform?usp=sharing",
+            "evidencias": "[{\"titulo\":\"Divulgação de materiais informativos em locais públicos\",\"descricao\":\"Divulgação de materiais informativos (folders, cartazes, vídeos e mídias sociais) em locais públicos, escolas, unidades de saúde, etc, para abordar temas relacionados aos direitos da criança, tais como: direito à proteção contra violência, exploração e negligência; malefícios do trabalho infantil; papel da família e da comunidade na garantia dos direitos da criança\"},{\"titulo\":\"Realização de eventos comunitários\",\"descricao\":\"Realização de eventos comunitários (palestras, oficinas, apresentações culturais) para abordar temas relacionados aos direitos da criança, tais como: direito à proteção contra violência, exploração e negligência; malefícios do trabalho infantil; papel da família e da comunidade na garantia dos direitos da criança\"}]"
+          }
+        },
+        {
+          "id": 16723,
+          "codIbge": "2300408",
+          "missaoId": "CTG1-MISSAO1",
+          "validation_status": "VALID",
+          "updated_at": "2025-03-15T19:51:40.000Z",
+          "evidence": "[{\"evidencia\":\"https://drive.google.com/open?id=1zGJH3QHYw_VSZvl6F46Uev0I6Qa3JmWB\",\"title\":\"Evidência 1\"},{\"evidencia\":\"https://drive.google.com/open?id=1RdEfN__vQCaLXq2m0mQFazcqpDlZz1gO\",\"title\":\"Evidência 2\"},{\"evidencia\":\"https://drive.google.com/open?id=1zE5ridB3KXhWe2UZ1pBlb27rER8xOBf_\",\"title\":\"Evidência 3\"},{\"evidencia\":\"dasjdlksamfçlsafasdfas\",\"title\":\"Evidência 4\"}]",
+          "missao": {
+            "id": "CTG1-MISSAO1",
+            "categoria": "CTG1",
+            "descricao_da_categoria": "Ampliação e Qualificação dos Serviços",
+            "emblema_da_categoria": "https://drive.google.com/file/d/18Bs5OpuFU6UQYitIlMtKh0FrEa9F6eSz/view?usp=sharing",
+            "descricao_da_missao": "Fortalecer a rede de serviços de atendimento à primeira infância, em especial, na expansão de creches, centros de educação infantil e outros serviços essenciais, garantindo acesso a todas as crianças",
+            "qnt_pontos": 25,
+            "link_formulario": "https://docs.google.com/forms/d/e/1FAIpQLSfE_-7qjHtplcSwCtnYZFqr8GCtS1g3w8BjCuA-KUxFpKMTWQ/viewform?usp=sharing",
+            "evidencias": "[{\"titulo\":\"Plano de Expansão da Rede de Serviços\",\"descricao\":\"Plano de expansão da rede de serviços contendo, no mínimo, metas, prazos e unidade responsável\"},{\"titulo\":\"Investimentos para Ampliação da Rede de Serviços\",\"descricao\":\"Destinação de recursos em investimentos para atender a ampliação da rede de serviços de atendimento à primeira infância.\"}]"
+          }
+        },
+        {
+          "id": 16907,
+          "codIbge": "2300408",
+          "missaoId": "CTG1-MISSAO2",
+          "validation_status": "VALID",
+          "updated_at": "2025-03-15T19:51:42.000Z",
+          "evidence": "[{\"evidencia\":\"https://drive.google.com/open?id=1zGJH3QHYw_VSZvl6F46Uev0I6Qa3JmWB\",\"title\":\"Evidência 1\"},{\"evidencia\":\"https://drive.google.com/open?id=1RdEfN__vQCaLXq2m0mQFazcqpDlZz1gO\",\"title\":\"Evidência 2\"},{\"evidencia\":\"https://drive.google.com/open?id=1zE5ridB3KXhWe2UZ1pBlb27rER8xOBf_\",\"title\":\"Evidência 3\"},{\"evidencia\":\"dasjdlksamfçlsafasdfas\",\"title\":\"Evidência 4\"}]",
+          "missao": {
+            "id": "CTG1-MISSAO2",
+            "categoria": "CTG1",
+            "descricao_da_categoria": "Ampliação e Qualificação dos Serviços",
+            "emblema_da_categoria": "https://drive.google.com/file/d/18Bs5OpuFU6UQYitIlMtKh0FrEa9F6eSz/view?usp=sharing",
+            "descricao_da_missao": "Investir na capacitação continuada de profissionais que atuam na primeira infância, promovendo a atualização de conhecimentos e a melhoria da qualidade dos serviços",
+            "qnt_pontos": 15,
+            "link_formulario": "https://docs.google.com/forms/d/e/1FAIpQLSeD4xcDfFdilPf5sxWq1dLnDesM9Me7xKqVWSy2pZKBb_Mxqw/viewform?usp=sharing",
+            "evidencias": "[{\"titulo\":\"Plano de Capacitação para profissionais que atuam na primeira infância\",\"descricao\":\"Plano de capacitação para profissionais que atuam na primeira infância.\"}]"
+          }
+        },
+        {
+          "id": 17091,
+          "codIbge": "2300408",
+          "missaoId": "CTG3-MISSAO1",
+          "validation_status": "STARTED",
+          "updated_at": "2025-03-15T19:51:46.000Z",
+          "evidence": "[{\"evidencia\":\"https://drive.google.com/open?id=1zGJH3QHYw_VSZvl6F46Uev0I6Qa3JmWB\",\"title\":\"Evidência 1\"},{\"evidencia\":\"https://drive.google.com/open?id=1RdEfN__vQCaLXq2m0mQFazcqpDlZz1gO\",\"title\":\"Evidência 2\"},{\"evidencia\":\"https://drive.google.com/open?id=1zE5ridB3KXhWe2UZ1pBlb27rER8xOBf_\",\"title\":\"Evidência 3\"},{\"evidencia\":\"dasjdlksamfçlsafasdfas\",\"title\":\"Evidência 4\"}]",
+          "missao": {
+            "id": "CTG3-MISSAO1",
+            "categoria": "CTG3",
+            "descricao_da_categoria": "Melhoria da  Gestão de Recursos",
+            "emblema_da_categoria": "https://drive.google.com/file/d/134N7i_5NXjIV7pQKIivk9zHxNt7KboKr/view?usp=sharing",
+            "descricao_da_missao": "Implementar sistemática de monitoramento e avaliação das políticas para a primeira infância, utilizando indicadores de desenvolvimento infantil que permitam acompanhar o progresso e identificar áreas para melhoria",
+            "qnt_pontos": 20,
+            "link_formulario": "https://docs.google.com/forms/d/e/1FAIpQLScpIJBeM2GMp-HGYcmv2xD-PBy0boPUs3v49pAqXGMSQrhjIg/viewform?usp=sharing",
+            "evidencias": "[{\"titulo\":\"Relatórios Periódicos de Monitoramento e Avaliação das Ações\",\"descricao\":\"Relatórios periódicos de monitoramento e avaliação das ações com base em indicadores de desenvolvimento infantil atualizados, identificando áreas para melhoria e replanejamento das ações.\"}]"
+          }
+        },
+        {
+          "id": 17275,
+          "codIbge": "2300408",
+          "missaoId": "CTG3-MISSAO2",
+          "validation_status": "STARTED",
+          "updated_at": "2025-03-15T19:51:47.000Z",
+          "evidence": "[{\"evidencia\":\"https://drive.google.com/open?id=1zGJH3QHYw_VSZvl6F46Uev0I6Qa3JmWB\",\"title\":\"Evidência 1\"},{\"evidencia\":\"https://drive.google.com/open?id=1RdEfN__vQCaLXq2m0mQFazcqpDlZz1gO\",\"title\":\"Evidência 2\"},{\"evidencia\":\"https://drive.google.com/open?id=1zE5ridB3KXhWe2UZ1pBlb27rER8xOBf_\",\"title\":\"Evidência 3\"},{\"evidencia\":\"dasjdlksamfçlsafasdfas\",\"title\":\"Evidência 4\"}]",
+          "missao": {
+            "id": "CTG3-MISSAO2",
+            "categoria": "CTG3",
+            "descricao_da_categoria": "Melhoria da  Gestão de Recursos",
+            "emblema_da_categoria": "https://drive.google.com/file/d/134N7i_5NXjIV7pQKIivk9zHxNt7KboKr/view?usp=sharing",
+            "descricao_da_missao": "Garantir o financiamento das políticas para a primeira infância, com recursos próprios e por meio de recursos de transferências, mediante a adesão aos programas disponibilizados",
+            "qnt_pontos": 20,
+            "link_formulario": "https://docs.google.com/forms/d/e/1FAIpQLSee9Wmlp3SOAU1FCHTGPUb6zDnrRwMOfr907tgj_tYy0xx5lg/viewform?usp=sharing",
+            "evidencias": "[{\"titulo\":\"Demonstrativos de Aplicação de Recursos na Primeira Infância\",\"descricao\":\"Demonstrativos de aplicação de recursos, por fonte, nos programas, projetos ou atividades voltados para a primeira infância.\"},{\"titulo\":\"Relação de Programas Estaduais e Federais com Adesão Municipal\",\"descricao\":\"Relação dos programas estaduais e federais com adesão do município, que beneficie, direta ou indiretamente, a primeira infância.\"}]"
+          }
+        },
+        {
+          "id": 17459,
+          "codIbge": "2300408",
+          "missaoId": "CTG3-MISSAO3",
+          "validation_status": "STARTED",
+          "updated_at": "2025-03-15T19:51:50.000Z",
+          "evidence": "[{\"evidencia\":\"https://drive.google.com/open?id=1zGJH3QHYw_VSZvl6F46Uev0I6Qa3JmWB\",\"title\":\"Evidência 1\"},{\"evidencia\":\"https://drive.google.com/open?id=1RdEfN__vQCaLXq2m0mQFazcqpDlZz1gO\",\"title\":\"Evidência 2\"},{\"evidencia\":\"https://drive.google.com/open?id=1zE5ridB3KXhWe2UZ1pBlb27rER8xOBf_\",\"title\":\"Evidência 3\"},{\"evidencia\":\"dasjdlksamfçlsafasdfas\",\"title\":\"Evidência 4\"}]",
+          "missao": {
+            "id": "CTG3-MISSAO3",
+            "categoria": "CTG3",
+            "descricao_da_categoria": "Melhoria da  Gestão de Recursos",
+            "emblema_da_categoria": "https://drive.google.com/file/d/134N7i_5NXjIV7pQKIivk9zHxNt7KboKr/view?usp=sharing",
+            "descricao_da_missao": "Evidenciar os recursos aplicados em projetos e atividades voltadas para a primeira infância no orçamento municipal, conforme metodologia proposta pelo TCE-CE para a classificação orçamentária dos gastos com a Primeira Infância",
+            "qnt_pontos": 30,
+            "link_formulario": "https://docs.google.com/forms/d/e/1FAIpQLSf2LE0tASdVbUjSj6geAg0-t6mnn3IrqVEKh2R7lkUF_ni7Dg/viewform?usp=sharing",
+            "evidencias": "[{\"titulo\":\"Identificação dos Gastos com a Primeira Infância, no exercício vigente.\",\"descricao\":\"Identificação no orçamento municipal dos programas, projetos ou atividades, do exercício vigente, que contemplem a primeira infância de forma exclusiva ou não exclusiva, utilizando a metodologia proposta pelo TCE-CE para a classificação orçamentária dos gastos com a Primeira Infância.\"},{\"titulo\":\"Divulgação do PPA para o ciclo 2026-2029\",\"descricao\":\"Divulgação do PPA para o ciclo 2026-2029 utilizando a metodologia proposta pelo TCE-CE para a classificação orçamentária dos gastos com a Primeira Infância\"},{\"titulo\":\"Envio da LOA 2026 pelo Sistema SIM\",\"descricao\":\"Envio da Lei Orçamentária Anual para o exercício de 2026, por meio do sistema SIM, utilizando a metodologia proposta pelo TCE-CE para a classificação orçamentária dos gastos com a Primeira Infância.\"}]"
+          }
+        }
+      ]
+    }
+  }

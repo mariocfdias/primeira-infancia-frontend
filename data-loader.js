@@ -382,15 +382,13 @@ function createMissionHTML(missao) {
                     <div class="mission-description-wrapper">
                         <p class="mission-description" style="color: white; margin-top: 8px;">${missao.missao.descrição_da_missao}</p>
                     </div>
-                    <div class="mission-status-wrapper" style="display: flex; justify-content: flex-end; gap: 12px; align-items: center;  width: 100%;">
+                    <div class="mission-status-wrapper" style="display: flex; justify-content: flex-end; gap: 12px; align-items: center; width: 100%;">
                         ${isCompleted ? 
-                            `<div class="status-chip" style=" padding: 4px 12px; border-radius: 100px; gap: 4px; display: flex; align-items: center;">
-                                <span style="font-size: 18px; display: flex; align-items: center; gap: 4px; font-weight: 500; margin-left: 4px;">
-                                    <i class="fas fa-check-circle"></i> <span style="margin-left: 4px;">Missão concluída</span>
-                                </span>
-                            </div>` : ''
+                            `<span class="badge rounded-pill bg-success" style="padding: 4px 12px; gap: 4px; display: flex; align-items: center;">
+                                <i class="fas fa-check-circle"></i> <span style="margin-left: 4px;">Missão concluída</span>
+                            </span>` : ''
                         }
-                        <div class="points-chip" style="font-weight: bold; font-size: 16px; display: flex; align-items: center; gap: 4px;">
+                        <div class="points-chip" style="font-weight: bold; font-size: 16px; display: flex; align-items: center; gap: 8px;">
                             <span>+${missao.missao.qnt_pontos || "--"}</span>
                             <i class="fas fa-star fa-xl" aria-hidden="true" role="img"></i>
                         </div>

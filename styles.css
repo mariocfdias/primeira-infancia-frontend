@@ -102,6 +102,7 @@ body {
     overflow: hidden;
     padding: 0;
     margin: 0;
+    transition: padding 0.3s ease-in-out;
 }
 
 html, body {
@@ -124,6 +125,7 @@ html, body {
     display: flex;
     flex-direction: column;
     min-width: 450px;
+    transition: all 0.3s ease-in-out;
 }
 
 .select-wrapper {
@@ -202,6 +204,12 @@ select {
     box-sizing: border-box;
     margin-left: 15px;
     max-width: 100%;
+    transition: all 0.3s ease-in-out;
+    display: block !important;
+    visibility: visible !important;
+    position: relative;
+    background-color: #fff;
+    z-index: 10;
 }
 
 .municipality-section,
@@ -272,6 +280,10 @@ select {
 
 .municipality-image:not(.skeleton) .municipality-image-placeholder {
     display: none;
+}
+
+.municipality-image:not(.skeleton) .municipality-image-real {
+    opacity: 1;
 }
 
 .municipality-header img {
@@ -636,22 +648,50 @@ select {
 }
 
 /* Missões Section */
+.missoes-section {
+    margin-top: 20px;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    border-radius: 8px;
+    background-color: #fff;
+    padding: 15px 0;
+    overflow: visible;
+}
+
 .missao-list {
     margin-top: 40px;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    overflow: visible;
+    position: relative;
+    z-index: 10;
 }
 
 .missao-item {
-    display: flex;
+    display: flex !important;
     flex-direction: column;
-    /*border: 1px solid #3D5E85;*/
     box-shadow: 0 2px 6px rgba(0,0,0,0.3);
     border-radius: 8px;
     margin-bottom: 42px;
     background: white;
+    visibility: visible !important;
+    opacity: 1 !important;
+    z-index: 5;
 }
 
 .missao-item:last-child {
     margin-bottom: 0px;
+}
+
+/* Override any potential conflict with the profile-right-panel */
+.profile-right-panel .missoes-section,
+.profile-right-panel .missao-list,
+.profile-right-panel .missao-item {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
 }
 
 .missao-header {
@@ -659,10 +699,28 @@ select {
     gap: 16px;
     align-items: flex-start;
     transition: background 0.3s ease;
+    position: relative;
 }
 
 .mission-status-wrapper {
     margin-top: 0px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    width: 100%;
+}
+
+.points-chip {
+    background-image: linear-gradient(to right, #FFDE2D, #F6CE56, #E9B330);
+    color: transparent;
+    background-clip: text;
+    text-align: right;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 5px;
 }
 
 .points-chip span {
@@ -670,7 +728,7 @@ select {
 }
 
 .status-chip {
-    background-image: linear-gradient(to right, #29B549,#4AC265, #2AB149);
+    background-image: linear-gradient(to right, #29B549, #4AC265, #2AB149);
     color: white;
     font-weight: 500;
 }
@@ -688,6 +746,7 @@ select {
 .mission-description {
     font-family: 'Noto Sans', sans-serif;
     font-weight: 400;
+    color: #FFFFFF;
     margin-top: 25px !important;
     font-size: 20px !important;
     letter-spacing: 1px;
@@ -1393,9 +1452,10 @@ select:focus,
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     font-size: 14px;
     color: #333;
-    white-space: nowrap;
+    white-space: normal;
     z-index: 1000;
     min-width: 200px;
+    max-width: 300px;
     text-align: left;
 }
 
@@ -1442,8 +1502,10 @@ select:focus,
         grid-template-columns: 1fr;
     }
 
-
-
+    .evidence-pill .info-icon:hover::after {
+        min-width: 150px;
+        max-width: 220px;
+    }
 }
 
 @media (min-width: 480px) {
@@ -1545,6 +1607,8 @@ body {
     flex: 0 0 50%;
     height: 100vh;
     overflow: hidden;
+    padding-left: 15px;
+    padding-right: 15px;
     box-sizing: border-box;
     background: white;
     border-radius: 8px;
@@ -1877,8 +1941,20 @@ select:disabled {
     background-image: linear-gradient(to right, #FFDE2D, #F6CE56, #E9B330);
     color: transparent;
     background-clip: text;
+    text-align: right;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 5px;
 }
 
+.points-chip span, 
+.points-chip i {
+    background-image: linear-gradient(to right, #FFDE2D, #F6CE56, #E9B330);
+    color: transparent;
+    -webkit-background-clip: text;
+    background-clip: text;
+}
 
 /* Make sure the SVG fills the parent container and maintains aspect ratio */
 .category-icon svg {
@@ -2096,6 +2172,34 @@ select:disabled {
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 3px;
+}
+
+.category-chip {
+    position: absolute;
+    top: -15px;
+    left: 20px;
+    z-index: 10;
+    border-radius: 4px;
+    padding: 5px 10px;
+    background-image: linear-gradient(to right, #0D3366, #124480, #1B5499);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.category-chip .category-description {
+    font-size: 14px;
+    color: #ffffff;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+}
+
+/* Make sure the parent has position relative */
+.missao-header {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    transition: background 0.3s ease;
+    position: relative;
 }
 
 .section-divider {
@@ -2416,4 +2520,164 @@ h2 {
     }
 }
 
+.evidence-grid {
+    /* display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr)); */
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 16px;
+    margin-bottom: 16px;
+}
 
+.evidence-pill {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 10px 15px;
+    font-size: 16px;
+    font-weight: 500;
+    width: 100%;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+}
+
+.evidence-btn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 10px 15px;
+    font-size: 16px;
+    font-weight: 500;
+    width: 100%;
+    background-color: #12447F;
+    border-color: #0d3366;
+}
+
+.evidence-btn:hover {
+    background-color: #0d3366;
+    border-color: #092548;
+}
+
+.evidence-btn i, .evidence-pill i {
+    flex-shrink: 0;
+    margin-left: auto;
+}
+
+.evidence-pill span, .evidence-btn span {
+    flex: 1;
+    text-align: left;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.evidence-pill .info-icon {
+    position: relative;
+    color: #12447F;
+    cursor: pointer;
+}
+
+.evidence-pill .info-icon:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: white;
+    padding: 8px 12px;
+    border-radius: 4px;
+    border: 1px solid #12447F;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    font-size: 14px;
+    color: #333;
+    white-space: normal;
+    z-index: 1000;
+    min-width: 200px;
+    max-width: 300px;
+    text-align: left;
+}
+
+/* Media queries */
+@media (max-width: 768px) {
+    .evidence-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* Map Legend Styles */
+.map-legend-control {
+    background: white;
+    padding: 12px;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+    max-width: 240px;
+    opacity: 0.9;
+    transition: opacity 0.3s;
+}
+
+.map-legend-control:hover {
+    opacity: 1;
+}
+
+.map-legend-container h4 {
+    margin: 0 0 10px 0;
+    font-size: 14px;
+    font-weight: bold;
+    color: #333;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 5px;
+}
+
+.legend-items {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.legend-color-box {
+    width: 28px;
+    height: 28px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    flex-shrink: 0;
+}
+
+.legend-text-container {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.legend-number {
+    color: white;
+    font-weight: bold;
+    font-size: 13px;
+    text-shadow: 1px 1px 1px rgba(0,0,0,0.5);
+}
+
+.legend-text {
+    font-size: 13px;
+    color: #444;
+}
+
+.legend-text-bold {
+    font-size: 13px;
+    color: #333;
+    font-weight: bold;
+}
+
+.legend-text-small {
+    font-size: 11px;
+    color: #666;
+}

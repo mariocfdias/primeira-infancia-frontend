@@ -21,6 +21,12 @@ document.addEventListener('DOMContentLoaded', function() {
     } else {
         console.log("Elemento eventos-section não encontrado");
     }
+
+    // Fix for municipality images
+    fixMunicipalityImages();
+    
+    // Adicionar botão para limpar filtros do mapa no painel esquerdo
+    addClearFiltersButton();
 });
 
 // Função para carregar dados locais para testes
@@ -125,6 +131,11 @@ function updateMissionState(missionId) {
     
     // Atualizar o alerta de missão selecionada
     updateMissionFilterAlert(missionId);
+    
+    // Atualizar a legenda do mapa
+    if (window.mapPanoramaInstance && typeof window.mapPanoramaInstance.updateLegend === 'function') {
+        window.mapPanoramaInstance.updateLegend();
+    }
     
     // Se um município já estiver selecionado, recarregar suas informações
     // para mostrar o desempenho específico na missão
@@ -299,29 +310,87 @@ function updateMapColors(missionData) {
     console.log("Municípios iniciados:", startedMunicipios.size);
     console.log("Municípios pendentes:", pendingMunicipios.size);
     
+    // Obter o conjunto global de municípios participantes (se disponível)
+    const participatingMunicipios = window.participatingMunicipalities || new Set();
+    console.log("Total de municípios participantes:", participatingMunicipios.size);
+    
+    // Obter o mapa de cores para missões
+    const missionColorMap = {
+        'NP': '#FFFFFF',  // Não participante (não aderiu)
+        'NA': '#FFFFFF',  // Legado: não aderiu
+        0: '#9F9F9F',    // Não iniciado (pendente)
+        1: '#72C576',    // Em ação (started)
+        2: '#12447F'     // Concluído (completed)
+    };
+    
+    // Contador para armazenar quantos municípios estão em cada nível
+    const countByLevel = {0: 0, 1: 0, 2: 0, 'NP': 0, 'NA': 0};
+    
     // Atualizar cada camada no mapa
     window.geoJSONLayer.eachLayer(layer => {
         if (layer.feature && layer.feature.properties) {
             const codIbge = layer.feature.properties.id;
-            let color = '#FFFFFF'; // cor padrão
+            const stringCodIbge = codIbge.toString();
             
-            if (completedMunicipios.has(codIbge)) {
-                color = '#12447F'; // azul para completados
-            } else if (startedMunicipios.has(codIbge)) {
-                color = '#72C576'; // verde para iniciados
-            } else if (pendingMunicipios.has(codIbge)) {
-                color = '#9F9F9F'; // cinza para pendentes
-            }
-            
-            // Usar a função global para atualizar a cor
-            if (window.updateLayerColor) {
-                window.updateLayerColor(layer, color);
-            } else {
-                console.warn("Função updateLayerColor não encontrada, usando fallback");
-                layer.setStyle({ fillColor: color });
+            // Verificar se o município participa do programa
+            const isParticipating = participatingMunicipios.has(parseInt(codIbge)) || 
+                                  participatingMunicipios.has(stringCodIbge);
+                                  
+            if (!isParticipating) {
+                // Município não aderiu ao Pacto
+                countByLevel['NP']++;
+                const color = missionColorMap['NP'] || '#FFFFFF';
+                
+                // Usar a função global para atualizar a cor
+                if (window.updateLayerColor) {
+                    window.updateLayerColor(layer, color);
+                } else {
+                    console.warn("Função updateLayerColor não encontrada, usando fallback");
+                    layer.setStyle({ fillColor: color });
+                }
+            } 
+            else {
+                // Município participa do programa, verificar estado da missão
+                let level = 0; // Padrão: pendente (0)
+                
+                if (completedMunicipios.has(codIbge) || completedMunicipios.has(stringCodIbge)) {
+                    level = 2; // Concluído
+                } else if (startedMunicipios.has(codIbge) || startedMunicipios.has(stringCodIbge)) {
+                    level = 1; // Em ação
+                } else if (pendingMunicipios.has(codIbge) || pendingMunicipios.has(stringCodIbge)) {
+                    level = 0; // Pendente
+                }
+                
+                // Incrementar contador para este nível
+                countByLevel[level]++;
+                
+                const color = missionColorMap[level] || missionColorMap[0];
+                
+                // Usar a função global para atualizar a cor
+                if (window.updateLayerColor) {
+                    window.updateLayerColor(layer, color);
+                } else {
+                    console.warn("Função updateLayerColor não encontrada, usando fallback");
+                    layer.setStyle({ fillColor: color });
+                }
             }
         }
     });
+    
+    // Para compatibilidade, manter 'NA' igual a 'NP'
+    countByLevel['NA'] = countByLevel['NP'];
+    
+    console.log("Contagem de municípios por nível:", countByLevel);
+    
+    // Armazenar o contador na instância do MapPanorama para uso na legenda
+    if (window.mapPanoramaInstance) {
+        window.mapPanoramaInstance.countByLevel = countByLevel;
+        
+        // Atualizar a legenda para mostrar as contagens
+        if (typeof window.mapPanoramaInstance.updateLegend === 'function') {
+            window.mapPanoramaInstance.updateLegend();
+        }
+    }
     
     console.log("Cores do mapa atualizadas");
 }
@@ -330,14 +399,11 @@ function updateMapColors(missionData) {
 function renderizarPanoramaMissoes(missoes) {
     const panoramaContainer = document.getElementById('panorama-missoes');
     
-    // Header do panorama com botão de limpar filtros
+    // Header do panorama sem o botão de limpar filtros (removido)
     const headerHTML = `
         <div class="panorama-header">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h2>Panorama de missões</h2>
-                <button id="limpar-filtros-mapa" class="btn btn-outline-primary">
-                    <i class="fas fa-refresh"></i> Limpar filtros do mapa
-                </button>
             </div>
             <p class="panorama-description">
                 Cada card abaixo representa uma missão específica e mostra a quantidade de municípios que já a concluíram. 
@@ -388,19 +454,6 @@ function renderizarPanoramaMissoes(missoes) {
     
     // Combinar o HTML e atualizar o container
     panoramaContainer.innerHTML = headerHTML + cardsHTML;
-    
-    // Adicionar event listener ao botão de limpar filtros
-    const btnLimparFiltros = document.getElementById('limpar-filtros-mapa');
-    if (btnLimparFiltros) {
-        btnLimparFiltros.addEventListener('click', function(e) {
-            e.preventDefault();
-            console.log("Botão Limpar filtros do mapa clicado");
-            limparFiltrosMapa();
-        });
-        console.log("Event listener adicionado ao botão limpar-filtros-mapa");
-    } else {
-        console.warn("Botão limpar-filtros-mapa não encontrado após renderização");
-    }
     
     // Adicionar event listeners aos botões "Ver no mapa"
     document.querySelectorAll('.view-map-button').forEach(button => {
@@ -825,23 +878,20 @@ function renderizarEventos(eventos, paginacao) {
         let dataFormatada = 'Data desconhecida';
         if (evento.data_alteracao) {
             try {
-                const dataEvento = new Date(evento.data_alteracao);
-                const hoje = new Date();
-                const diaEmMilissegundos = 24 * 60 * 60 * 1000;
+                // Configurar o locale para pt-br
+                moment.locale('pt-br');
                 
-                if (dataEvento.toDateString() === hoje.toDateString()) {
-                    dataFormatada = 'Hoje';
-                } else if ((hoje - dataEvento) < 7 * diaEmMilissegundos) {
-                    dataFormatada = `${Math.floor((hoje - dataEvento) / diaEmMilissegundos)} dias`;
-                } else {
-                    dataFormatada = dataEvento.toLocaleDateString('pt-BR', {
-                        day: '2-digit',
-                        month: '2-digit',
-                        year: 'numeric'
-                    }).replace(/\//g, '/');
-                }
+                // Usar o formato calendar do Moment.js que já trata relativamente (hoje, ontem, etc)
+                dataFormatada = moment(evento.data_alteracao).calendar(null, {
+                    sameDay: '[Hoje]',
+                    lastDay: '[Ontem]',
+                    lastWeek: function() {
+                        return '[' + this.fromNow(true) + ']';
+                    },
+                    sameElse: 'L' // Formato padrão para datas mais antigas (DD/MM/YYYY)
+                });
             } catch (e) {
-                console.error("Erro ao formatar data:", e, evento.data_alteracao);
+                console.error("Erro ao formatar data com Moment.js:", e, evento.data_alteracao);
             }
         }
         
@@ -1002,34 +1052,178 @@ function limparFiltrosMapa() {
         alertContainer.innerHTML = '';
     }
     
-    // Recarregar informações do município selecionado (se houver)
-    const municipioSelect = document.getElementById('municipio-select');
-    if (municipioSelect && municipioSelect.value && window.mapPanoramaInstance) {
-        window.mapPanoramaInstance.loadMunicipioInfo(municipioSelect.value);
-    }
+    // Função auxiliar para carregar dados diretamente
+    const loadMapPanoramaDataDirectly = async () => {
+        try {
+            console.log("Carregando dados do mapa diretamente da API...");
+            const url = `${window.API_BASE_URL}/dashboard/map-panorama`;
+            const response = await fetch(url);
+            
+            if (!response.ok) {
+                throw new Error(`Erro na resposta: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            console.log("Dados de panorama carregados diretamente:", data);
+            
+            if (data && data.municipios) {
+                // Processar os dados dos municípios
+                const participatingMunicipalities = new Set();
+                const municipioLevels = new Map();
+                
+                data.municipios.forEach(municipio => {
+                    const codIbge = municipio.codIbge.toString();
+                    
+                    if (municipio.desempenho) {
+                        const level = municipio.desempenho.level;
+                        municipioLevels.set(codIbge, level);
+                        
+                        if (level !== 'NP') {
+                            participatingMunicipalities.add(codIbge);
+                        }
+                    }
+                });
+                
+                // Atualizar variáveis globais
+                window.participatingMunicipalities = participatingMunicipalities;
+                
+                if (window.mapPanoramaInstance) {
+                    window.mapPanoramaInstance.municipioLevels = municipioLevels;
+                    window.mapPanoramaInstance.updateMapColors();
+                }
+                
+                return true;
+            }
+            
+            return false;
+        } catch (error) {
+            console.error("Erro ao carregar dados diretamente:", error);
+            return false;
+        }
+    };
     
     // Aplicar coloração básica do mapa
     if (window.geoJSONLayer) {
         // Verificar se existe uma instância de MapPanorama
         if (window.mapPanoramaInstance) {
             console.log("Usando MapPanorama para atualizar as cores do mapa");
-            // Deixar o MapPanorama atualizar as cores com base nos níveis
-            window.mapPanoramaInstance.updateMapColors();
-        } else {
-            console.log("Instância de MapPanorama não encontrada, aplicando cores manualmente");
-            // Fallback: aplicar cores manualmente
-            window.geoJSONLayer.eachLayer(layer => {
-                if (layer.feature && layer.feature.properties) {
-                    // Cor padrão para municípios participantes
-                    let color = '#72C576'; // verde para participantes
+            
+            // Forçar uma nova busca de dados para garantir o estado padrão
+            if (typeof window.mapPanoramaInstance.fetchMapPanoramaData === 'function') {
+                console.log("Recarregando dados de panorama do mapa...");
+                
+                try {
+                    // Primeiro, garantir que a instância tenha o estado limpo
+                    if (window.mapPanoramaInstance.countByLevel) {
+                        // Zerar contadores temporariamente para evitar que a legenda mostre valores antigos
+                        const defaultCount = {0: 0, 1: 0, 2: 0, 3: 0, 'NP': 0};
+                        window.mapPanoramaInstance.countByLevel = defaultCount;
+                        window.mapPanoramaInstance.updateLegend();
+                    }
                     
-                    // Usar a função global para atualizar a cor
-                    if (window.updateLayerColor) {
-                        console.log('Aplicando cor padrão:', color);
-                        window.updateLayerColor(layer, color);
-                    } else {
-                        console.warn("Função updateLayerColor não encontrada, usando fallback");
-                        layer.setStyle({ fillColor: color });
+                    // Buscar novos dados da API
+                    window.mapPanoramaInstance.fetchMapPanoramaData()
+                        .then(() => {
+                            console.log("Dados de panorama do mapa recarregados com sucesso");
+                            // Garantir que as cores do mapa sejam atualizadas após carregar os dados
+                            setTimeout(() => {
+                                window.mapPanoramaInstance.updateMapColors();
+                                console.log("Cores do mapa atualizadas após recarregar dados");
+                            }, 100);
+                        })
+                        .catch(error => {
+                            console.error("Erro ao recarregar dados de panorama:", error);
+                            // Fallback: tentar carregar diretamente da API
+                            loadMapPanoramaDataDirectly().then(success => {
+                                if (!success) {
+                                    // Se ainda falhar, atualizar com os dados atuais
+                                    window.mapPanoramaInstance.updateMapColors();
+                                }
+                            });
+                        });
+                } catch (error) {
+                    console.error("Erro ao limpar filtros do mapa:", error);
+                    // Fallback: tentar carregar diretamente da API
+                    loadMapPanoramaDataDirectly().then(success => {
+                        if (!success) {
+                            // Se ainda falhar, atualizar com os dados atuais
+                            window.mapPanoramaInstance.updateMapColors();
+                        }
+                    });
+                }
+            } else {
+                console.log("Método fetchMapPanoramaData não encontrado, tentando carregar diretamente");
+                
+                // Tentar carregar diretamente da API
+                loadMapPanoramaDataDirectly().then(success => {
+                    if (!success) {
+                        // Fallback: usar a distribuição de níveis atual
+                        if (window.mapPanoramaInstance.levelDistribution) {
+                            const countByLevel = {0: 0, 1: 0, 2: 0, 3: 0, 'NP': 0};
+                            
+                            // Contar municípios de cada nível
+                            for (const level of window.mapPanoramaInstance.levelDistribution) {
+                                if (level && level.municipios) {
+                                    countByLevel[level.level] = level.municipios.length;
+                                }
+                            }
+                            
+                            // Calcular municípios que não aderiram ao pacto
+                            const totalMunicipios = window.geoJSONLayer._layers ? Object.keys(window.geoJSONLayer._layers).length : 0;
+                            const participatingCount = window.participatingMunicipalities ? window.participatingMunicipalities.size : 0;
+                            countByLevel['NP'] = totalMunicipios - participatingCount;
+                            
+                            // Atualizar contador na instância
+                            window.mapPanoramaInstance.countByLevel = countByLevel;
+                            console.log("Contador atualizado:", countByLevel);
+                        }
+                        
+                        // Deixar o MapPanorama atualizar as cores com base nos níveis
+                        window.mapPanoramaInstance.updateMapColors();
+                    }
+                });
+            }
+        } else {
+            console.log("Instância de MapPanorama não encontrada, tentando carregar dados diretamente");
+            
+            // Tentar carregar diretamente da API mesmo sem instância de MapPanorama
+            loadMapPanoramaDataDirectly().then(success => {
+                if (!success) {
+                    // Fallback: aplicar cores manualmente
+                    window.geoJSONLayer.eachLayer(layer => {
+                        if (layer.feature && layer.feature.properties) {
+                            // Obter o nível do município (se disponível)
+                            let level = 0;
+                            const id = layer.feature.properties.id;
+                            
+                            // Tentar obter informações de participação global
+                            const isParticipating = window.participatingMunicipalities && 
+                                                  (window.participatingMunicipalities.has(id) || 
+                                                   window.participatingMunicipalities.has(id.toString()));
+                            
+                            // Escolher a cor adequada
+                            let color = isParticipating ? '#50B755' : '#FFFFFF'; // verde para participantes, branco para não participantes
+                            
+                            // Usar a função global para atualizar a cor
+                            if (window.updateLayerColor) {
+                                window.updateLayerColor(layer, color);
+                            } else {
+                                console.warn("Função updateLayerColor não encontrada, usando fallback");
+                                layer.setStyle({ fillColor: color });
+                            }
+                        }
+                    });
+                }
+                
+                // Tentar atualizar a legenda mesmo sem o MapPanorama
+                const legendElement = document.querySelector('.map-legend-control');
+                if (legendElement) {
+                    const items = legendElement.querySelectorAll('.legend-number');
+                    if (items && items.length > 0) {
+                        // Resetar todos os números para 0
+                        items.forEach(item => {
+                            item.textContent = '0';
+                        });
                     }
                 }
             });
@@ -1038,5 +1232,150 @@ function limparFiltrosMapa() {
         console.warn("Camada GeoJSON não inicializada");
     }
     
+    // Recarregar informações do município selecionado (se houver)
+    const municipioSelect = document.getElementById('municipio-select');
+    if (municipioSelect && municipioSelect.value && window.mapPanoramaInstance) {
+        setTimeout(() => {
+            window.mapPanoramaInstance.loadMunicipioInfo(municipioSelect.value);
+        }, 300);
+    }
+    
     console.log("Filtros do mapa limpos com sucesso");
+}
+
+// Function to fix municipality images that might be stuck
+function fixMunicipalityImages() {
+    console.log("Checking for municipality images to fix...");
+    
+    // Find all municipality-image elements that still have the skeleton class
+    const skeletonImages = document.querySelectorAll('.municipality-image.skeleton');
+    console.log(`Found ${skeletonImages.length} skeleton images to check`);
+    
+    skeletonImages.forEach((imageContainer, index) => {
+        const realImage = imageContainer.querySelector('.municipality-image-real');
+        
+        if (realImage) {
+            // Check if the image is already loaded but skeleton class wasn't removed
+            if (realImage.complete && realImage.naturalWidth > 0) {
+                console.log(`Image ${index} is already loaded, removing skeleton class`);
+                
+                // Force remove skeleton class and show the image
+                imageContainer.classList.remove('skeleton');
+                realImage.style.opacity = '1';
+            } else {
+                // Check if this is a Google Drive URL that needs fixing
+                const currentSrc = realImage.src;
+                
+                if (currentSrc && currentSrc.includes('drive.google.com')) {
+                    // Try to fix the Google Drive URL
+                    console.log(`Image ${index} has a Drive URL that needs fixing:`, currentSrc);
+                    
+                    // Extract ID using two different regex patterns
+                    let imageId = null;
+                    
+                    // Format 1: /d/{id}/ (standard sharing link)
+                    const regexPath = /\/d\/(.*?)(\/|$)/;
+                    const matchPath = currentSrc.match(regexPath);
+                    
+                    // Format 2: id={id} (export and view URLs)
+                    const regexQuery = /[?&]id=([^&]+)/;
+                    const matchQuery = currentSrc.match(regexQuery);
+                    
+                    if (matchPath && matchPath[1]) {
+                        imageId = matchPath[1];
+                    } else if (matchQuery && matchQuery[1]) {
+                        imageId = matchQuery[1];
+                    }
+                    
+                    if (imageId) {
+                        const newSrc = `https://drive.google.com/thumbnail?id=${imageId}`;
+                        console.log(`Fixing Drive URL to thumbnail. New URL: ${newSrc}`);
+                        realImage.src = newSrc;
+                    }
+                }
+                
+                // Reattach onload handler
+                realImage.onload = function() {
+                    console.log(`Image ${index} loaded via reattached handler:`, this.src);
+                    this.parentElement.classList.remove('skeleton');
+                    this.style.opacity = '1';
+                };
+                
+                // If image has been loading for too long, try reloading it
+                setTimeout(() => {
+                    if (imageContainer.classList.contains('skeleton')) {
+                        console.log(`Image ${index} still loading after timeout, trying to reload`);
+                        const currentSrc = realImage.src;
+                        realImage.src = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';
+                        setTimeout(() => { realImage.src = currentSrc; }, 50);
+                    }
+                }, 3000);
+            }
+        }
+    });
+    
+    // Set up a periodic check for any new skeleton images
+    setTimeout(checkForNewSkeletonImages, 3000);
+}
+
+// Function to periodically check for new skeleton images that need fixing
+function checkForNewSkeletonImages() {
+    const skeletonImages = document.querySelectorAll('.municipality-image.skeleton');
+    
+    if (skeletonImages.length > 0) {
+        console.log(`Found ${skeletonImages.length} skeleton images during periodic check`);
+        fixMunicipalityImages();
+    } else {
+        // If no skeleton images found, set up another check in 5 seconds
+        // but only continue for a reasonable amount of time (e.g., 30 seconds total)
+        if (!window.skeletonCheckCount) {
+            window.skeletonCheckCount = 1;
+        } else {
+            window.skeletonCheckCount++;
+        }
+        
+        if (window.skeletonCheckCount < 6) { // 5 checks * 5 seconds = 25 seconds + initial 3 seconds = ~30 seconds
+            setTimeout(checkForNewSkeletonImages, 5000);
+        }
+    }
+}
+
+// Função para adicionar botão de limpar filtros ao painel esquerdo
+function addClearFiltersButton() {
+    console.log("Adicionando botão de limpar filtros ao painel esquerdo");
+    const leftPanel = document.querySelector('.left-panel');
+    
+    if (leftPanel) {
+        // Criar botão de limpar filtros
+        const clearButton = document.createElement('button');
+        clearButton.id = 'limpar-filtros-mapa';
+        clearButton.className = 'btn btn-outline-primary';
+        clearButton.style.marginBottom = '15px';
+        clearButton.innerHTML = '<i class="fas fa-refresh"></i> Limpar filtros do mapa';
+        
+        // Adicionar evento ao botão
+        clearButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log("Botão Limpar filtros do mapa clicado");
+            limparFiltrosMapa();
+        });
+        
+        // Inserir após o elemento legenda ou antes do mapa
+        const legenda = leftPanel.querySelector('.legenda');
+        if (legenda) {
+            leftPanel.insertBefore(clearButton, legenda);
+        } else {
+            const mapContainer = leftPanel.querySelector('.map-container');
+            if (mapContainer) {
+                leftPanel.insertBefore(clearButton, mapContainer);
+            } else {
+                // Se não encontrar nenhum dos dois, adicionar ao final
+                leftPanel.appendChild(clearButton);
+            }
+        }
+        
+        console.log("Botão de limpar filtros adicionado ao painel esquerdo");
+    } else {
+        console.warn("Painel esquerdo não encontrado");
+    }
 } 

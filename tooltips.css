@@ -1,0 +1,66 @@
+/* Custom Tooltip Styles */
+.custom-tooltip-popup {
+    position: fixed;
+    bottom: auto;
+    left: auto;
+    transform: translate(-50%, -100%);
+    background: white;
+    padding: 8px 12px;
+    border-radius: 4px;
+    border: 1px solid #12447F;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    font-size: 14px;
+    color: #333;
+    white-space: normal;
+    z-index: 1000;
+    min-width: 200px;
+    max-width: 300px;
+    text-align: left;
+    pointer-events: none;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+
+/* Tooltip Show/Hide State */
+.custom-tooltip-popup.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Style for info icons with tooltips */
+[data-tooltip] {
+    cursor: pointer;
+    color: #12447F;
+}
+
+/* Animation for tooltip appearance */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -90%);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -100%);
+    }
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+        visibility: visible;
+    }
+    to {
+        opacity: 0;
+        visibility: hidden;
+    }
+}
+
+.custom-tooltip-popup.animating-in {
+    animation: fadeIn 0.2s ease-out forwards;
+}
+
+.custom-tooltip-popup.animating-out {
+    animation: fadeOut 0.2s ease-in forwards;
+} 

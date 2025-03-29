@@ -10,16 +10,43 @@ html, body {
     overflow-y: auto;
 }
 
+/* Estilo para o botão de limpar filtros do mapa no painel esquerdo */
+.left-panel #limpar-filtros-mapa {
+    margin: 15px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 15px;
+    border-radius: 6px;
+    font-family: 'Noto Sans', sans-serif;
+    font-weight: 500;
+    font-size: 16px;
+    background-color: #ffffff;
+    color: #12447F;
+    border: 1px solid #12447F;
+    transition: all 0.3s ease;
+    width: 100%;
+    cursor: pointer;
+}
+
+.left-panel #limpar-filtros-mapa:hover {
+    background-color: #f2f7fc;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.left-panel #limpar-filtros-mapa i {
+    font-size: 16px;
+}
+
 .panorama-container {
-    max-width: 100%;
+    width: 100%;
     margin: 0 auto;
-    padding: 40px 20px;
     font-family: 'Atkinson Hyperlegible', sans-serif;
-    background: #f5f5f5;
+    background: #ffffff;
 }
 
 .panorama-section {
-    max-width: 1200px;
     margin: 0 auto;
 }
 
@@ -45,9 +72,10 @@ html, body {
 /* Grid de cards de missões */
 .mission-cards-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 20px;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
     margin-top: 30px;
+    justify-content: space-between;
 }
 
 /* Estilos para os cards de missão - alinhados com missao-item */
@@ -249,12 +277,10 @@ html, body {
 
 /* Seção de eventos */
 .eventos-section {
-    max-width: 1200px;
     margin: 60px auto 0;
     background-color: #fff;
     border-radius: 10px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-    padding: 30px;
     position: relative;
 }
 
@@ -486,7 +512,8 @@ html, body {
     }
     
     .mission-cards-grid {
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
     }
     
     .view-map-button {
@@ -513,7 +540,8 @@ html, body {
     }
     
     .mission-cards-grid {
-        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        grid-template-columns: 1fr;
+        gap: 16px;
     }
     
     .category-icon {
@@ -552,6 +580,7 @@ html, body {
     
     .mission-cards-grid {
         grid-template-columns: 1fr;
+        gap: 16px;
     }
     
     .panorama-header h2 {
@@ -592,6 +621,7 @@ html, body {
 /* Main content wrapper */
 .main-content {
     display: flex;
+    padding: 40px 20px;
     flex-direction: column;
     width: 100%;
 }
